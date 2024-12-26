@@ -10,6 +10,7 @@
 // Variable to track connection status
 bool deviceConnected = false;
 String mac;
+BLEScan *scan;
 
 // BLE Server callback class
 class MyServerCallbacks : public BLEServerCallbacks
@@ -61,15 +62,16 @@ void setup()
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH);
 
+    scan = BLEDevice::getScan();
+    scan->setActiveScan(true);
+    scan->setInterval(100);
+    scan->setWindow(99);
     BLEDevice::init("");
 }
 
 void loop()
 {
-    BLEScan *scan = BLEDevice::getScan();
-    scan->setActiveScan(true);
     BLEScanResults results = scan->start(1);
-    bool other_esp = false;
     for (size_t i = 0; i < results.getCount(); i++)
     {
         BLEAdvertisedDevice device = results.getDevice(i);
