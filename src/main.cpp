@@ -86,6 +86,7 @@ void loop()
     //     Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
     // }
 
+
     int deviceCount = SerialBT.scanDevices(); // Start scanning for Bluetooth devices
   
   if (deviceCount == 0) {
