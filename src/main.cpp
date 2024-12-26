@@ -17,16 +17,8 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {
         deviceConnected = true;
-        uint8_t i = 0;
-        while(i<5){
-            mac += String(param->connect.remote_bda[i],HEX);
-            mac += ':';
-            i++;
-        }
-        mac += String(param->connect.remote_bda[i],HEX);
-
+        mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
-
         Serial.println("Device connected.");
     }
 
@@ -58,10 +50,11 @@ void setup()
     pAdvertising->addServiceUUID(SERVICE_UUID);
     BLEDevice::startAdvertising();
 
-    while (!deviceConnected)
-    {
+    while (!deviceConnected){
         Serial.println("Waiting for device to connect...");
+        vTaskDelay(500/portTICK_PERIOD_MS);
     }
+
     BLEDevice::deinit();
     Serial.print(mac);
 
