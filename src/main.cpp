@@ -69,16 +69,38 @@ void setup()
     BLEDevice::init("");
 }
 
+
+BluetoothSerial SerialBT; // Bluetooth serial object
+
 void loop()
 {
-    BLEScanResults results = scan->start(1);
-    for (size_t i = 0; i < results.getCount(); i++)
-    {
-        BLEAdvertisedDevice device = results.getDevice(i);
-        if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
-            Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
-        }
+    // BLEScanResults results = scan->start(1);
+    // for (size_t i = 0; i < results.getCount(); i++)
+    // {
+    //     BLEAdvertisedDevice device = results.getDevice(i);
+    //     if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
+    //         Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
+    //     }
 
-        Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
+    //     Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
+    // }
+
+    int deviceCount = SerialBT.scanDevices(); // Start scanning for Bluetooth devices
+  
+  if (deviceCount == 0) {
+    Serial.println("No devices found.");
+  } else {
+    Serial.println("Devices found:");
+    for (int i = 0; i < deviceCount; i++) {
+      String deviceName = SerialBT.getDeviceName(i);  // Get the device name
+      String deviceAddress = SerialBT.getDeviceAddress(i).toString(); // Get the device address
+
+      Serial.print("Device ");
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(deviceName);
+      Serial.print(" - ");
+      Serial.println(deviceAddress);
     }
+  }
 }
