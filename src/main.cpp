@@ -56,7 +56,7 @@ void setup()
     }
 
     BLEDevice::deinit();
-    Serial.print(mac);
+    Serial.println(mac);
 
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH);
@@ -77,6 +77,6 @@ void loop()
             Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
         }
 
-        Serial.printf("%i %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str());
+        Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
     }
 }
