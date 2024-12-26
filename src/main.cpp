@@ -93,15 +93,7 @@ void loop()
   } else {
     Serial.println("Devices found:");
     for (int i = 0; i < deviceCount; i++) {
-      String deviceName = SerialBT.getDeviceName(i);  // Get the device name
-      String deviceAddress = SerialBT.getDeviceAddress(i).toString(); // Get the device address
-
-      Serial.print("Device ");
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(deviceName);
-      Serial.print(" - ");
-      Serial.println(deviceAddress);
+        Serial.printf("device mac: %s\n",SerialBT.getBtAddressString());
     }
   }
 }
