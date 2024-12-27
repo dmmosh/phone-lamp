@@ -57,11 +57,11 @@ void setup(){
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
-    Serial.printf("[ ESP BT CONTROLLER INIT %s ]\n", (esp_bt_controller_init(&bt_cfg)) ? "SUCCESS" : "FAIL");
-    Serial.printf("[ ESP BT CONTROLLER ENABLE %s ]\n", (esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) ? "SUCCESS" : "FAIL");
-    Serial.printf("[ ESP BLUEDROID INIT %s ]\n", (esp_bluedroid_init()) ? "SUCCESS" : "FAIL");
-    Serial.printf("[ ESP BLUEDROID ENABLE %s ]\n", (esp_bluedroid_enable()) ? "SUCCESS" : "FAIL");
-    Serial.printf("[ ESP BT NAME %s ]\n", (esp_bt_dev_set_device_name("Phone Lamp")) ? "SUCCESS" : "FAIL");
+    Serial.printf("[ ESP BT CONTROLLER INIT %s ]\n", (esp_bt_controller_init(&bt_cfg)) ? "FAIL" : "SUCCESS");
+    Serial.printf("[ ESP BT CONTROLLER ENABLE %s ]\n", (esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) ? "FAIL" : "SUCCESS");
+    Serial.printf("[ ESP BLUEDROID INIT %s ]\n", (esp_bluedroid_init()) ? "FAIL" : "SUCCESS");
+    Serial.printf("[ ESP BLUEDROID ENABLE %s ]\n", (esp_bluedroid_enable()) ? "FAIL" : "SUCCESS");
+    Serial.printf("[ ESP BT NAME %s ]\n", (esp_bt_dev_set_device_name("Phone Lamp")) ? "FAIL" : "SUCCESS");
 
     
 
