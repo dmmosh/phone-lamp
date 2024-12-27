@@ -123,6 +123,7 @@ void loop()
             Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
         }
         Serial.println(device.getManufacturerData().c_str());
+        Serial.println(device.getServiceData().c_str());
         Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
     }
 
