@@ -55,10 +55,7 @@ void setup(){
 
     SerialBT.begin("Phone Lamp");
 
-    while(!SerialBT.hasClient()){
-        Serial.println("Waiting for device to connect...");
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
+    
     
     
     
