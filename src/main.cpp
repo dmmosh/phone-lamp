@@ -8,8 +8,8 @@
 #define ON 1
 #define FLASH 2
 
-uint8_t status = OFF; //led_
-uint8_t flash_led_state = OFF;
+uint8_t curr_state = OFF; //led_
+TaskHandle_t flash_led_task = NULL;
 
 
 // DEBUG SERIAL INPUT
@@ -47,37 +47,33 @@ String input_string(){
 
 
 void flash_led(void* args){
-    while(status == FLASH){
+    while(curr_state == FLASH){
         digitalWrite(LED,HIGH);
         vTaskDelay(1000/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
-    flash_led_state = OFF;  
     vTaskDelete(NULL);
 }
 
-void led(const uint8_t state){
-    status = state;
-
-    if(state == FLASH && flash_led_state == OFF){ 
-        flash_led_state = ON;
-        xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-    } else if (state == ON){
-        flash_led_state = OFF;
-        while(flash_led_state){
-
-        };
+void led(const uint8_t new_state){  
+    // state: new state
+    // 
+    if(new_state == FLASH && curr_state != FLASH){ 
+        xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
+    } else if (new_state == ON && curr_state != ON){
+        if(curr_state == FLASH){
+            vTaskDelete(flash_led_task);
+        }
         digitalWrite(LED,HIGH);
         
-    } else if (state == OFF){
-        flash_led_state = OFF;
-        while(flash_led_state){
-
-        };
+    } else if (new_state == OFF && curr_state != OFF){
+        if(curr_state == FLASH){
+            vTaskDelete(flash_led_task);
+        }
         digitalWrite(LED,LOW);
-
     }
+    curr_state = new_state;
 }
 
 void setup(){
