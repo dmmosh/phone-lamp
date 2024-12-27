@@ -58,7 +58,7 @@ class MyServerCallbacks : public BLEServerCallbacks
 
         std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
         for(const auto& pair: devices){
-            Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
+            Serial.println(((BLEClient*)pair.second.peer_device)->toString().c_str());
         }
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
@@ -92,7 +92,7 @@ void setup()
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
     BLEDevice::startAdvertising();
-
+    led(ON);
     led(FLASH);
     while (!deviceConnected){
         Serial.println("Waiting for device to connect...");
