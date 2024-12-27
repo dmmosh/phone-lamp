@@ -19,7 +19,7 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {
         deviceConnected = true;
-        mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
+        mac = ((BLEDevice*)pServer->getPeerDevices(false)[1].peer_device)->getAddress().toString().c_str();
         
         Serial.println("Device connected.");
     }
