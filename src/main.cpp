@@ -1,7 +1,11 @@
 #include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "BluetoothSerial.h"
+#include "esp_bt_main.h"
+#include "esp_gap_bt_api.h"
+#include "esp_bt_device.h"
+#include "esp_bt.h"
+
 
 #define LED 2
 #define OFF 0
@@ -9,11 +13,8 @@
 #define FLASH 2
 
 
-BluetoothSerial SerialBT;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
-
-
 
 void flash_led(void* args){
     while(curr_state == FLASH){
@@ -53,9 +54,23 @@ void setup(){
     Serial.begin(115200);
     pinMode(LED,OUTPUT);
 
-    SerialBT.begin("Phone Lamp");
-
+    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_init(&bt_cfg);
+    esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT); // Enable Classic Bluetooth
     
+
+    if (esp_bluedroid_init() != ESP_OK || esp_bluedroid_enable() != ESP_OK){
+        Serial.println("[ ESP BLUETOOTH FAILED ]");
+        esp_restart();
+    }
+
+    esp_bt_dev_set_device_name("Phone Lamp");
+
+
+    // Disable Bluetooth advertising (hides the device)
+    //esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
+    //esp_bt_gap_cancel_discovery(); // If device is in discovery mode, cancel it
+
     
     
     
@@ -63,13 +78,5 @@ void setup(){
 
 
 void loop(){
-        BTScanResults* devices = SerialBT.getScanResults();
-        uint16_t device_cnt = devices->getCount();
-        for (uint16_t i = 0; i < device_cnt; i++)
-        {
-            BTAdvertisedDevice *device = devices->getDevice(i);
-            Serial.printf("%i %s %s\n",device->getRSSI(), device->getAddress().toString().c_str(), device->getName().c_str());
-        }
-        vTaskDelay(1000/portTICK_PERIOD_MS);
 
 }
