@@ -90,6 +90,7 @@ void setup(){
 void loop(){
     Serial.println("Enter command:");
     String input = input_string();
+    Serial.println(input);
     if(!strcmp(input.c_str(), "on")){
         led(ON);
     } else if (!strcmp(input.c_str(), "off")){
