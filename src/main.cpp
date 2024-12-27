@@ -22,9 +22,9 @@ TaskHandle_t flash_led_task = NULL;
 void flash_led(void* args){
     while(curr_state == FLASH){
         digitalWrite(LED,HIGH);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        vTaskDelay(500/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        vTaskDelay(500/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
@@ -56,11 +56,6 @@ class MyServerCallbacks : public BLEServerCallbacks
     {
         deviceConnected = true;
 
-        std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
-        for(const auto& pair: devices){
-            Serial.println(((BLEClient*)pair.second.peer_device)->toString().c_str());
-        }
-        //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
         Serial.println("Device connected.");
     }
