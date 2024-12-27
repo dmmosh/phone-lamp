@@ -88,13 +88,13 @@ void setup(){
 
 
 void loop(){
-        Serial.println("[ LED ON ]");
         led(ON);
+        Serial.println("[ LED ON ]");
         vTaskDelay(2000/portTICK_PERIOD_MS);
-        Serial.println("[ LED OFF ]");
         led(OFF);
+        Serial.println("[ LED OFF ]");
         vTaskDelay(2000/portTICK_PERIOD_MS);
-        Serial.println("[ LED FLASH ]");
         led(FLASH);
+        Serial.println("[ LED FLASH ]");
         vTaskDelay(2000/portTICK_PERIOD_MS);
 }
