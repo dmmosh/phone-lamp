@@ -9,23 +9,25 @@
 #define FLASH 2
 
 uint8_t status = OFF; //led_
+uint8_t flash_led_state = OFF;
 TaskHandle_t flash_led_task = NULL;
 
-
 void flash_led(void* args){
+    flash_led_state = ON; 
     while(status == FLASH){
         digitalWrite(LED,HIGH);
         vTaskDelay(1000/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
+    flash_led_state = OFF;
     vTaskDelete(NULL);
 }
 
 void led(const uint8_t state){
     status = state;
 
-    if(state == FLASH && eTaskGetState(flash_led_task) != eRunning){ 
+    if(state == FLASH && flash_led_state != ON){
         xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
     } else if (state == ON){
         vTaskDelete(flash_led_task);
