@@ -50,13 +50,13 @@ void setup(){
     pinMode(LED,OUTPUT);
 
     
+    SerialBT.begin("Phone Lamp");
     
 }   
 
 
 void loop(){
 
-    SerialBT.begin("Phone Lamp");
     BTScanResults* devices = SerialBT.getScanResults();
 
     Serial.println(devices->getCount());
