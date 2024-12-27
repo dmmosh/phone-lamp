@@ -54,18 +54,16 @@ void setup(){
     Serial.begin(115200);
     pinMode(LED,OUTPUT);
 
-    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    esp_bt_controller_init(&bt_cfg);
-    esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT); // Enable Classic Bluetooth
-    
-    uint8_t init = esp_bluedroid_init();
-    uint8_t enable = esp_bluedroid_enable();
-    if (init != ESP_OK || enable != ESP_OK){
-        Serial.println("[ ESP BLUETOOTH FAILED ]");
-        esp_restart();
-    }
 
-    esp_bt_dev_set_device_name("Phone Lamp");
+    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
+    Serial.printf("[ ESP BT CONTROLLER INIT %s ]\n", (esp_bt_controller_init(&bt_cfg)) ? "SUCCESS" : "FAIL");
+    Serial.printf("[ ESP BT CONTROLLER ENABLE %s ]\n", (esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) ? "SUCCESS" : "FAIL");
+    Serial.printf("[ ESP BLUEDROID INIT %s ]\n", (esp_bluedroid_init()) ? "SUCCESS" : "FAIL");
+    Serial.printf("[ ESP BLUEDROID ENABLE %s ]\n", (esp_bluedroid_enable()) ? "SUCCESS" : "FAIL");
+    Serial.printf("[ ESP BT NAME %s ]\n", (esp_bt_dev_set_device_name("Phone Lamp")) ? "SUCCESS" : "FAIL");
+
+    
 
 
     // Disable Bluetooth advertising (hides the device)
