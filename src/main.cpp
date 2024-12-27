@@ -58,8 +58,9 @@ void setup(){
     esp_bt_controller_init(&bt_cfg);
     esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT); // Enable Classic Bluetooth
     
-
-    if (esp_bluedroid_init() != ESP_OK || esp_bluedroid_enable() != ESP_OK){
+    bool init = esp_bluedroid_init();
+    bool enable = esp_bluedroid_enable();
+    if (!init || !enable){
         Serial.println("[ ESP BLUETOOTH FAILED ]");
         esp_restart();
     }
