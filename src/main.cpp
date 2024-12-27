@@ -58,8 +58,8 @@ class MyServerCallbacks : public BLEServerCallbacks
 
         std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
         for(const auto& pair: devices){
-            std::string data = ((BLEClient*)pair.second.peer_device)->toString();
-            Serial.println(data.c_str());
+            Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+            Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         }
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
