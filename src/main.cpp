@@ -18,7 +18,7 @@ BLEScan *scan;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
 
-
+Blue
 
 void flash_led(void* args){
     while(curr_state == FLASH){
@@ -120,7 +120,6 @@ void setup()
 }
 
 
-BluetoothSerial SerialBT; // Bluetooth serial object
 
 void loop()
 {
