@@ -49,14 +49,6 @@ void setup(){
     Serial.begin(115200);
     pinMode(LED,OUTPUT);
 
-    SerialBT.begin("Phone Lamp");
-    BTScanResults* devices = SerialBT.getScanResults();
-    
-    for (int i = 0; i < devices->getCount(); i++)
-    {
-        BTAdvertisedDevice *device = devices->getDevice(i);
-        Serial.printf("%i %s %s", device->getRSSI(), device->getAddress().toString().c_str(), device->getName().c_str());
-    }
     
     
 }   
@@ -64,5 +56,9 @@ void setup(){
 
 void loop(){
 
+    SerialBT.begin("Phone Lamp");
+    BTScanResults* devices = SerialBT.getScanResults();
+
+    Serial.println(devices->getCount());
     
 }
