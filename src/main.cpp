@@ -91,11 +91,11 @@ void loop(){
     Serial.println("Enter command:");
     String input = input_string();
     Serial.println(input);
-    if(!strcmp(input.c_str(), "on")){
+    if(input.equals("on")){
         led(ON);
-    } else if (!strcmp(input.c_str(), "off")){
+    } else if (input.equals("off")){
         led(OFF);
-    } else if (!strcmp(input.c_str(), "flash")){
+    } else if (input.equals("flash")){
         led(FLASH);
     }
 }
