@@ -55,11 +55,6 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {
         deviceConnected = true;
-        Serial.println(pServer->getConnId());
-        for (size_t i = 0; i < count; i++)
-        {
-            /* code */
-        }
 
         std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
         for(const auto& pair: devices){
