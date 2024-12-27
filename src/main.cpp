@@ -59,6 +59,7 @@ class MyServerCallbacks : public BLEServerCallbacks
         std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
         for(const auto& pair: devices){
             Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+            Serial.println((int)((BLEClient*)pair.second.peer_device)->getRssi());
             Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         }
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
@@ -100,6 +101,7 @@ void setup()
         vTaskDelay(500/portTICK_PERIOD_MS);
     }
 
+    pServer->getPeerDevices(true);
     BLEDevice::deinit();
     //Serial.println(mac);
     led(ON);
