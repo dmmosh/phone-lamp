@@ -56,7 +56,7 @@ void led(const uint8_t new_state){
 class MyServerCallbacks : public BLEServerCallbacks
 {
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
-    {
+    {   
         deviceConnected = true;
         std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
         for(const auto& pair: devices){
