@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "BLEScan.h"
-#include "BLEAdvertisedDevice.h"
-#include "BLEDevice.h"
-#include "BluetoothSerial.h"
+#include <BLEDevice.h>
+#include <BLEScan.h>
+#include <BLEAdvertisedDevice.h>
+#include <BLEClient.h>
 
 #define SERVICE_UUID "9f46b94c-9574-4f6c-bd1b-ddc3a7a83a43"
 #define CHARACTERISTIC_UUID "afe8ef56-902f-4b38-a6a2-0eade0aca572"
@@ -56,6 +56,16 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {
         deviceConnected = true;
+        Serial.println(pServer->getConnId());
+        for (size_t i = 0; i < count; i++)
+        {
+            /* code */
+        }
+
+        std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(true);
+        for(const auto& pair: devices){
+            Serial.println(((BLEDevice*)pair.second.peer_device)->getAddress().toString().c_str());
+        }
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
         Serial.println("Device connected.");
