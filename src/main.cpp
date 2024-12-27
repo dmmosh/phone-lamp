@@ -15,39 +15,30 @@
 bool deviceConnected = false;
 String mac;
 BLEScan *scan;
-uint8_t curr_state = OFF; //led_
+uint8_t led = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
 
 
 void flash_led(void* args){
-    while(curr_state == FLASH){
-        digitalWrite(LED,HIGH);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-        digitalWrite(LED,LOW);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+    bool curr_flash = LOW;
+    while(1){
+        switch(led){
+            case FLASH:
+                curr_flash = (curr_flash) ? LOW : HIGH;
+                digitalWrite(LED,curr_flash);
+            break;
+            case ON:
+                digitalWrite(LED,HIGH);
+            break;
+            case OFF:
+                digitalWrite(LED,LOW);
+            break;
+
+            vTaskDelay(1000/portTICK_PERIOD_MS);
+        }
     }
-    vTaskDelete(NULL);
 }
 
-void led(const uint8_t new_state){  
-    // state: new state
-    // 
-    if(new_state == FLASH && curr_state != FLASH){ 
-        xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
-    } else if (new_state == ON && curr_state != ON){
-        if(curr_state == FLASH){
-            vTaskDelete(flash_led_task);
-        }
-        digitalWrite(LED,HIGH);
-        
-    } else if (new_state == OFF && curr_state != OFF){
-        if(curr_state == FLASH){
-            vTaskDelete(flash_led_task);
-        }
-        digitalWrite(LED,LOW);
-    }
-    curr_state = new_state;
-}
 
 // BLE Server callback class
 class MyServerCallbacks : public BLEServerCallbacks
@@ -74,6 +65,8 @@ class MyServerCallbacks : public BLEServerCallbacks
 
 void setup()
 {
+    xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
+    led = FLASH;
     Serial.begin(115200);
     BLEDevice::init("Phone Lamp");
 
@@ -92,8 +85,7 @@ void setup()
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
     BLEDevice::startAdvertising();
-    led(ON);
-    led(FLASH);
+
     while (!deviceConnected){
         Serial.println("Waiting for device to connect...");
         vTaskDelay(500/portTICK_PERIOD_MS);
@@ -104,8 +96,8 @@ void setup()
 
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH);
+    led = ON;
 
-    led(ON);
     scan = BLEDevice::getScan();
     scan->setActiveScan(true);
     scan->setInterval(100);
