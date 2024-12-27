@@ -3,6 +3,9 @@
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 #include <BLEClient.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLEAdvertising.h>
 
 #define SERVICE_UUID "9f46b94c-9574-4f6c-bd1b-ddc3a7a83a43"
 #define CHARACTERISTIC_UUID "afe8ef56-902f-4b38-a6a2-0eade0aca572"
