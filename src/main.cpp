@@ -88,16 +88,13 @@ void setup(){
 
 
 void loop(){
-    Serial.println("Enter command:");
-    String input = input_string();
-    if(input.equals("on\n")){
         Serial.println("[ LED ON ]");
         led(ON);
-    } else if (input.equals("off\n")){
+        vTaskDelay(2000/portTICK_PERIOD_MS);
         Serial.println("[ LED OFF ]");
         led(OFF);
-    } else if (input.equals("flash\n")){
+        vTaskDelay(2000/portTICK_PERIOD_MS);
         Serial.println("[ LED FLASH ]");
         led(FLASH);
-    }
+        vTaskDelay(2000/portTICK_PERIOD_MS);
 }
