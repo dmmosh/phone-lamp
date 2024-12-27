@@ -90,14 +90,13 @@ void setup(){
 void loop(){
     Serial.println("Enter command:");
     String input = input_string();
-    Serial.println(input);
-    if(input.equals("on")){
+    if(input.equals("on\n")){
         Serial.println("[ LED ON ]");
         led(ON);
-    } else if (input.equals("off")){
+    } else if (input.equals("off\n")){
         Serial.println("[ LED OFF ]");
         led(OFF);
-    } else if (input.equals("flash")){
+    } else if (input.equals("flash\n")){
         Serial.println("[ LED FLASH ]");
         led(FLASH);
     }
