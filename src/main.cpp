@@ -92,10 +92,13 @@ void loop(){
     String input = input_string();
     Serial.println(input);
     if(input.equals("on")){
+        Serial.println("[ LED ON ]");
         led(ON);
     } else if (input.equals("off")){
+        Serial.println("[ LED OFF ]");
         led(OFF);
     } else if (input.equals("flash")){
+        Serial.println("[ LED FLASH ]");
         led(FLASH);
     }
 }
