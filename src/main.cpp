@@ -198,21 +198,34 @@ void setup()
     scan->setWindow(99);     // Scan window
     //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
     */
-   Serial.println("fdsijcli");
-    BTScanResults * results = SerialBT.getScanResults();
-    for (int i = 0; i < results->getCount(); i++)
-    {
-        BTAdvertisedDevice* device = results->getDevice(i);
-        Serial.println(device->getAddress().toString());
-    }   
+    
 }
 
 //gn
 
+void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
+  Serial.printf("Found a device asynchronously: %s\n", pDevice->toString().c_str());
+}
+
 void loop()
 {   
 
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+    BTScanResults* pResults = SerialBT.discover(1000);
+
+    if(!pResults){
+        Serial.println("Error BT Scan");
+    }
+    else if(pResults->getCount() == 0){
+        Serial.println("No devices found");
+    }
+    else {
+        for (uint16_t i = 0; i < pResults->getCount(); i++)
+        {
+            BTAdvertisedDevice* device =  pResults->getDevice(i);
+            Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
+        }
+    }
+  
 
 
     // BLEScanResults results = scan->start(3);
