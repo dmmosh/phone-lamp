@@ -105,6 +105,7 @@ void setup()
     // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
+    pAdvertising->setAppearance(0x1858);
     BLEDevice::startAdvertising();
     led(FLASH);
     while (!deviceConnected){
@@ -114,10 +115,7 @@ void setup()
     pServer->getPeerDevices(true);
     
 
-    while(1){
-        Serial.print(pService->getUUID().toString().c_str());
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
+    Serial.println(pService->getUUID().toString().c_str());
 
 
     BLEDevice::deinit();
