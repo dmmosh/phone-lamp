@@ -60,6 +60,8 @@ void led(const uint8_t new_state){
     curr_state = new_state;
 }
 
+
+/*
 // BLE Server callback class
 class MyServerCallbacks : public BLEServerCallbacks
 {
@@ -99,7 +101,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
         
     }
 };
-
+*/
 
 void setup()
 {
