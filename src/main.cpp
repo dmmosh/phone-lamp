@@ -64,7 +64,7 @@ class MyServerCallbacks : public BLEServerCallbacks
         //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         // }
 
-        memcpy(&mac, param->connect.remote_bda, 6); //this way youll have the peerdevice addres
+        memcpy(mac, param->connect.remote_bda, 6); //this way youll have the peerdevice addres
 
         Serial.print("\n");
         
