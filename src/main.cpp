@@ -103,12 +103,32 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
 };
 */
 
+void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
+ 
+  if (event == ESP_SPP_SRV_OPEN_EVT) {
+ 
+    Serial.println("Client Connected has address:");
+ 
+    for (int i = 0; i < 6; i++) {
+ 
+      Serial.printf("%.2x", param->srv_open.rem_bda[i]);
+ 
+      if (i < 5) {
+        Serial.print(":");
+      }
+ 
+    }
+  }
+}
+
 void setup()
 {
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
 
     SerialBT.begin("Phone Lamp");
+    SerialBT.register_callback(callback);
+
 
 
     led(FLASH);
