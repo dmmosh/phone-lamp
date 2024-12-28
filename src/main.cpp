@@ -126,18 +126,26 @@ void setup()
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
 
-    SerialBT.begin("Phone Lamp");
     SerialBT.register_callback(callback);
+    if (!SerialBT.begin("Phone Lamp")) {
+        Serial.println("An error occurred initializing Bluetooth");
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        esp_restart();
+    } else {
+      Serial.println("Bluetooth initialized");
+    }
 
 
 
     led(FLASH);
+    uint8_t sec = 0;
     while(!SerialBT.connected()){
-        Serial.println("Waiting for connection to begin...");
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        Serial.printf("Waiting for device to connect... %is\n", sec);
+        sec++;
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     led(ON);
-    Serial.println(SerialBT.getBtAddressString());
+    //Serial.println(SerialBT.getBtAddressString());
 
     /*
     BLEDevice::init("Phone Lamp");
