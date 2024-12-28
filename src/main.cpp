@@ -58,11 +58,11 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {   
         deviceConnected = true;
-        std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-        for(const auto& pair: devices){
-            Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-            Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
-        }
+        // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+        // for(const auto& pair: devices){
+        //     Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+        //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
+        // }
 
         for (int8_t i = 0; i < 5; i++)
         {
@@ -70,7 +70,6 @@ class MyServerCallbacks : public BLEServerCallbacks
         }
         Serial.printf("%.2x\n", param->connect.remote_bda[5]);
 
-        
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
@@ -118,9 +117,9 @@ void setup()
 
     //Serial.println(pService->getUUID().toString().c_str());
 
-    while(1){
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    };
+    // while(1){
+    //     vTaskDelay(1000/portTICK_PERIOD_MS);
+    // };
 
     BLEDevice::deinit();
 
