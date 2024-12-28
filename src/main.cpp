@@ -22,12 +22,15 @@
 #define LED 2
 #define OFF 0
 #define ON 1
+#define RSSI_NULL 1
 #define FLASH 2
 BluetoothSerial SerialBT;
+
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
+int8_t rssi = RSSI_NULL;
 char mac[18]; // mac address
 bool device_found = false; // device found close
 
@@ -128,7 +131,8 @@ void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
 
   if (!strcmp(pDevice->getAddress().toString().c_str(), mac)){
     device_found = true;
-    Serial.printf("PHONE FOUND RSSI: %i\n", pDevice->getRSSI());
+    rssi = pDevice->getRSSI();
+    Serial.printf("PHONE FOUND RSSI: %i\n", rssi);
   }
   //Serial.printf("DEVICE: %s - %i\n", pDevice->getAddress().toString().c_str(), pDevice->getRSSI());
 }
@@ -223,7 +227,14 @@ void loop()
 
     while(!device_found){
         vTaskDelay(5/portTICK_PERIOD_MS);
+    } // when device is found
+    
+    if(rssi<  -45 || rssi == RSSI_NULL){
+        led(OFF);
+    } else {
+        led(ON);
     }
+
     device_found = false;
 
     SerialBT.discoverAsyncStop();
