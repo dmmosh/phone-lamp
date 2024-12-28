@@ -111,8 +111,15 @@ void setup()
         Serial.println("Waiting for device to connect...");
         vTaskDelay(500/portTICK_PERIOD_MS);
     }
-    
     pServer->getPeerDevices(true);
+    
+
+    while(1){
+        Serial.print(pService->getUUID().toString().c_str());
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    }
+
+
     BLEDevice::deinit();
 
     //Serial.println(mac);
