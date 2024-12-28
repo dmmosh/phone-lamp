@@ -129,6 +129,7 @@ void setup()
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
 
+    SerialBT.enableSSP();
     SerialBT.register_callback(callback);
     if (!SerialBT.begin("Phone Lamp")) {
         Serial.println("An error occurred initializing Bluetooth");
@@ -138,7 +139,6 @@ void setup()
       Serial.println("Bluetooth initialized");
     }
 
-    SerialBT.setPin("1234");
 
     led(FLASH);
     uint8_t sec = 0;
