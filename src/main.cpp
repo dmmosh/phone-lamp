@@ -17,47 +17,8 @@
 
 // BLUETOOTH CLASSIC LIBRARIES / DATA
 #include <BluetoothSerial.h>
-#include "esp_bt.h"
-#include "esp_bt_main.h"
-#include "esp_gap_bt_api.h"
-#include "esp_log.h"
-
-// Callback function for GAP events
-void bt_gap_callback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
-    switch (event) {
-        case ESP_BT_GAP_DISC_RES_EVT: {
-            // A device was found
-            Serial.println("DEVICE FOUND");
-            for (size_t i = 0; i < 6; i++)
-            {
-                Serial.printf("%.2x ", param->disc_res.bda[i]);
-            }
-            Serial.print("\n");            
 
 
-            for (int i = 0; i < param->disc_res.num_prop; i++) {
-                if (param->disc_res.prop[i].type == ESP_BT_GAP_DEV_PROP_EIR) {
-                    Serial.printf("Device name: %s\n",
-                                  (char *)param->disc_res.prop[i].val);
-                }
-            }
-            break;
-        }
-
-        case ESP_BT_GAP_DISC_STATE_CHANGED_EVT: {
-            // Discovery state changed
-            if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STARTED) {
-                Serial.println("Discovery started");
-            } else if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) {
-                Serial.println("Discovery stopped");
-            }
-            break;
-        }
-
-        default:
-            break;
-    }
-}
 #define LED 2
 #define OFF 0
 #define ON 1
@@ -161,6 +122,11 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
   }
 }
 
+// Callback function to handle discovered devices
+void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
+  Serial.printf("Found a device asynchronously: %s\n", pDevice->getAddress().toString().c_str());
+}
+
 
 
 void setup()
@@ -191,24 +157,7 @@ void setup()
     Serial.println(mac);
     led(ON);
     SerialBT.disconnect();
-    SerialBT.end();
 
-    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    esp_bt_controller_init(&bt_cfg);
-    esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT);
-
-    // Initialize the Bluedroid stack
-    esp_bluedroid_init();
-    esp_bluedroid_enable();
-
-    // Register the GAP callback
-    esp_bt_gap_register_callback(bt_gap_callback);
-
-    esp_bredr_tx_power_set(ESP_PWR_LVL_P9,ESP_PWR_LVL_P9);
-
-    // Start Bluetooth discovery
-    Serial.println("Starting discovery...");
-    esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, 10, 0);
     //Serial.println(SerialBT.getBtAddressString());
 
     /*
@@ -257,6 +206,7 @@ void setup()
     //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
     */
     
+    SerialBT.discoverAsync(btAdvertisedDeviceFound);
 }
 
 //gn
@@ -264,26 +214,24 @@ void setup()
 void loop()
 {   
 
-    /*
 
-    BTScanResults* pResults = SerialBT.discover(2000);
-    if(!pResults){
-        Serial.println("Error BT Scan");
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
-    else if(pResults->getCount() == 0){
-        Serial.println("No devices found");
-    }
-    else {
-        pResults->dump(&Serial);
-        // for (uint16_t i = 0; i < pResults->getCount(); i++)
-        // {
-        //     BTAdvertisedDevice* device =  pResults->getDevice(i);
-        //     Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
-        // }
-    }
-    SerialBT.discoverClear();
-    */
+    // BTScanResults* pResults = SerialBT.discover(2000);
+    // if(!pResults){
+    //     Serial.println("Error BT Scan");
+    //     vTaskDelay(1000/portTICK_PERIOD_MS);
+    // }
+    // else if(pResults->getCount() == 0){
+    //     Serial.println("No devices found");
+    // }
+    // else {
+    //     pResults->dump(&Serial);
+    //     // for (uint16_t i = 0; i < pResults->getCount(); i++)
+    //     // {
+    //     //     BTAdvertisedDevice* device =  pResults->getDevice(i);
+    //     //     Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
+    //     // }
+    // }
+    //SerialBT.discoverClear();
   
     vTaskDelay(1000/portTICK_PERIOD_MS);
 
