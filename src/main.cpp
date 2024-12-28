@@ -64,11 +64,11 @@ class MyServerCallbacks : public BLEServerCallbacks
             Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         }
 
-        // for (int8_t i = 0; i < 5; i++)
-        // {
-        //     Serial.printf("%.2x:", param->connect.remote_bda[i]);
-        // }
-        // Serial.printf("%.2x\n", param->connect.remote_bda[5]);
+        for (int8_t i = 0; i < 5; i++)
+        {
+            Serial.printf("%.2x:", param->connect.remote_bda[i]);
+        }
+        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
 
         
         
