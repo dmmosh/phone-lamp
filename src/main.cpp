@@ -18,15 +18,54 @@
 // BLUETOOTH CLASSIC LIBRARIES / DATA
 #include <BluetoothSerial.h>
 #include "esp_bt.h"
+#include "esp_bt_main.h"
+#include "esp_gap_bt_api.h"
+#include "esp_log.h"
 
-#define BT_DISCOVER_TIME 3000
+// Tag for logging
+static const char *TAG = "BT_SCANNER";
+
+// Callback function to handle GAP events
+void bt_gap_callback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
+    switch (event) {
+        case ESP_BT_GAP_DISC_RES_EVT: 
+            // A new device has been discovered
+            Serial.print("Device: ");
+            for (uint8_t i = 0; i < 5; i++)
+            {
+                Serial.printf("%.2x:", param->disc_res.bda[i]);
+            }
+            Serial.printf("%.2x\n", param->disc_res.bda[5]);
+            
+
+            // Check if the device has a name
+            for (int i = 0; i < param->disc_res.num_prop; i++) {
+                if (param->disc_res.prop[i].type == ESP_BT_GAP_DEV_PROP_EIR) {
+                    ESP_LOGI(TAG, "Device name: %s",
+                             (char *)param->disc_res.prop[i].val);
+                }
+            }
+         break;
+
+        case ESP_BT_GAP_DISC_STATE_CHANGED_EVT: 
+            // Discovery state changed
+            if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STARTED) {
+                Serial.println("Discovery started");
+            } else if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) {
+                Serial.println("Discovery stopped");
+            }
+        break;
+
+        default:
+            break;
+    }
+}
+
 #define LED 2
 #define OFF 0
 #define ON 1
 #define FLASH 2
 BluetoothSerial SerialBT;
-esp_spp_role_t role = ESP_SPP_ROLE_SLAVE;   // or ESP_SPP_ROLE_MASTER
-esp_spp_sec_t sec_mask = ESP_SPP_SEC_NONE;  // or ESP_SPP_SEC_ENCRYPT|ESP_SPP_SEC_AUTHENTICATE to request pincode confirmation
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
@@ -155,7 +194,21 @@ void setup()
     Serial.println(mac);
     led(ON);
     SerialBT.disconnect();
+    SerialBT.end();
+
+    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_init(&bt_cfg);
+    esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT);
+
+    // Initialize the Bluedroid stack
+    esp_bluedroid_init();
+    esp_bluedroid_enable();
+
+    // Register the GAP callback
+    esp_bt_gap_register_callback(bt_gap_callback);
+
     esp_bredr_tx_power_set(ESP_PWR_LVL_P9,ESP_PWR_LVL_P9);
+    esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, 10, 0);
     //Serial.println(SerialBT.getBtAddressString());
 
     /*
@@ -211,6 +264,8 @@ void setup()
 void loop()
 {   
 
+    /*
+
     BTScanResults* pResults = SerialBT.discover(2000);
     if(!pResults){
         Serial.println("Error BT Scan");
@@ -227,10 +282,11 @@ void loop()
         //     Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
         // }
     }
+    SerialBT.discoverClear();
+    */
   
     vTaskDelay(1000/portTICK_PERIOD_MS);
 
-    SerialBT.discoverClear();
     // BLEScanResults results = scan->start(3);
     // for (size_t i = 0; i < results.getCount(); i++)
     // {
