@@ -198,12 +198,12 @@ void setup()
     scan->setWindow(99);     // Scan window
     //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
     */
-   Serial.print("fdsijcli");
+   Serial.println("fdsijcli");
     BTScanResults * results = SerialBT.getScanResults();
-    for (uint16_t i = 0; i < results->getCount(); i++)
+    for (int i = 0; i < results->getCount(); i++)
     {
         BTAdvertisedDevice* device = results->getDevice(i);
-        Serial.printf("%s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
+        Serial.println(device->getAddress().toString());
     }   
 }
 
