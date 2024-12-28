@@ -125,8 +125,12 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
 // Callback function to handle discovered devices
 void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
-  device_found = true;
-  Serial.printf("Found a device asynchronously: %s - %i\n", pDevice->getAddress().toString().c_str(), pDevice->getRSSI());
+
+  if (!strcmp(pDevice->getAddress().toString().c_str(), mac)){
+    device_found = true;
+    Serial.printf("PHONE FOUND RSSI: %i\n", pDevice->getRSSI());
+  }
+  //Serial.printf("DEVICE: %s - %i\n", pDevice->getAddress().toString().c_str(), pDevice->getRSSI());
 }
 
 
