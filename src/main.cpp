@@ -25,9 +25,9 @@ BluetoothSerial SerialBT;
 #define FLASH 2
 
 // Variable to track connection status
-String mac;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
+char mac[18]; // mac address
 
 
 void flash_led(void* args){
@@ -108,17 +108,21 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
   if (event == ESP_SPP_SRV_OPEN_EVT) {
  
     Serial.println("Client Connected has address:");
- 
+    
+
     for (int i = 0; i < 6; i++) {
- 
-      Serial.printf("%.2x", param->srv_open.rem_bda[i]);
- 
-      if (i < 5) {
-        Serial.print(":");
-      }
- 
+    
+        sprintf(((char*)mac)+2*i+i,"%.2x", param->srv_open.rem_bda[i]); // save to stack string
+        mac[2*i+i+2] = ':'; // dont worry about last char - gets replaced by null termination char
+        //Serial.printf("%.2x", param->srv_open.rem_bda[i]);
     }
+
+    mac[17] = '\0';
+
+    Serial.println(mac);
   }
+
+    
 }
 
 void setup()
