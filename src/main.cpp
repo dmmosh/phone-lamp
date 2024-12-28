@@ -16,7 +16,7 @@
 
 // Variable to track connection status
 bool deviceConnected = false;
-String mac;
+uint8_t* mac = NULL;
 BLEScan *scan;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
@@ -58,18 +58,15 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {   
         deviceConnected = true;
-        std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-        for(const auto& pair: devices){
-            Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-            Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
-        }
-
-        // Serial.print("MAC address: ");
-        // for (size_t i = 0; i < 6; i++)
-        // {
-        //     Serial.printf("%s ", param->connect.remote_bda[i]);
+        // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+        // for(const auto& pair: devices){
+        //     Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+        //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         // }
-        // Serial.print("\n");
+
+        memcpy(&mac, param->connect.remote_bda, 6); //this way youll have the peerdevice addres
+
+        Serial.print("\n");
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
@@ -112,6 +109,14 @@ void setup()
     
     pServer->getPeerDevices(true);
     BLEDevice::deinit();
+
+    for (size_t i = 0; i < 6; i++)
+    {
+        Serial.printf("%i ", mac[i]);
+    }
+    Serial.print("\n");
+    free(mac);
+    
     //Serial.println(mac);
     led(ON);
     scan = BLEDevice::getScan();
@@ -129,9 +134,9 @@ void loop()
     for (size_t i = 0; i < results.getCount(); i++)
     {
         BLEAdvertisedDevice device = results.getDevice(i);
-        if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
-            Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
-        }
+        // if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
+        //     Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
+        // }
         Serial.println(device.getManufacturerData().c_str());
         Serial.println(device.getServiceData().c_str());
         Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
