@@ -84,19 +84,6 @@ class MyServerCallbacks : public BLEServerCallbacks
     }
 };
 
-BLEAdvertisedDevice* myDevice;
-
-class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
-    void onResult(BLEAdvertisedDevice advertisedDevice) {
-        Serial.print("Found Device: ");
-        Serial.println(advertisedDevice.toString().c_str());
-
-        if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(SERVICE_UUID)) {
-            BLEDevice::getScan()->stop();
-            myDevice = new BLEAdvertisedDevice(advertisedDevice);
-        }
-    }
-};
 
 void setup()
 {
