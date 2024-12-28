@@ -123,20 +123,21 @@ void setup()
 
     BLEDevice::deinit();
 
+    BLEDevice::init("");
     //Serial.println(mac);
     led(ON);
     scan = BLEDevice::getScan();
-    scan->setActiveScan(true);
-    scan->setInterval(100);
-    scan->setWindow(99);
-    BLEDevice::init("");
+    scan->setActiveScan(true);  // Enable active scan for better results
+    scan->setInterval(100);  // Scan interval
+    scan->setWindow(99);     // Scan window
+    //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
 }
 
 
 
 void loop()
 {
-    BLEScanResults results = scan->start(1);
+    BLEScanResults results = scan->start(3);
     for (size_t i = 0; i < results.getCount(); i++)
     {
         BLEAdvertisedDevice device = results.getDevice(i);
