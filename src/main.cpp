@@ -84,6 +84,14 @@ class MyServerCallbacks : public BLEServerCallbacks
     }
 };
 
+class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
+    void onResult(BLEAdvertisedDevice advertisedDevice) {
+        Serial.print("Found device: ");
+        Serial.println(advertisedDevice.toString().c_str());
+        
+    }
+};
+
 
 void setup()
 {
@@ -127,6 +135,7 @@ void setup()
     //Serial.println(mac);
     led(ON);
     scan = BLEDevice::getScan();
+    scan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     scan->setActiveScan(true);  // Enable active scan for better results
     scan->setInterval(100);  // Scan interval
     scan->setWindow(99);     // Scan window
@@ -138,16 +147,16 @@ void setup()
 void loop()
 {
     BLEScanResults results = scan->start(3);
-    for (size_t i = 0; i < results.getCount(); i++)
-    {
-        BLEAdvertisedDevice device = results.getDevice(i);
-        // if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
-        //     Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
-        // }
-        //Serial.println(device.getManufacturerData().c_str());
-        //Serial.println(device.getServiceData().c_str());
-        Serial.println("---------");
-        Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
-    }
+    // for (size_t i = 0; i < results.getCount(); i++)
+    // {
+    //     BLEAdvertisedDevice device = results.getDevice(i);
+    //     // if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
+    //     //     Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
+    //     // }
+    //     //Serial.println(device.getManufacturerData().c_str());
+    //     //Serial.println(device.getServiceData().c_str());
+    //     Serial.println("---------");
+    //     Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
+    // }
 
 }
