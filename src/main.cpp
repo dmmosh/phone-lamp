@@ -105,7 +105,7 @@ void setup()
     // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
-    pAdvertising->setAppearance(0x1858);
+    pAdvertising->setAppearance(0x004C);
     BLEDevice::startAdvertising();
     led(FLASH);
     while (!deviceConnected){
