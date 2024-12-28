@@ -64,20 +64,18 @@ class MyServerCallbacks : public BLEServerCallbacks
         //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         // }
 
-        Serial.printf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
-  param->connect.remote_bda[0],
-  param->connect.remote_bda[1],
-  param->connect.remote_bda[2],
-  param->connect.remote_bda[3],
-  param->connect.remote_bda[4],
-  param->connect.remote_bda[5]
-);
-
+        for (int8_t i = 0; i < 5; i++)
+        {
+            Serial.printf("%.2x:", param->connect.remote_bda[i]);
+        }
+        Serial.printf("%.2x", param->connect.remote_bda[5]);
+        
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
         Serial.println("Device connected.");
     }
+
 
     void onDisconnect(BLEServer *pServer)
     {
