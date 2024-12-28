@@ -66,7 +66,7 @@ class MyServerCallbacks : public BLEServerCallbacks
 
         for (int8_t i = 0; i < 5; i++)
         {
-            Serial.printf("%.2x:", param->connect.remote_bda[i]);
+            Serial.printf("%x:", param->connect.remote_bda[i]);
         }
         Serial.printf("%.2x\n", param->connect.remote_bda[5]);
 
