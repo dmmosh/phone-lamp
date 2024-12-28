@@ -128,7 +128,7 @@ void setup()
 {
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
-
+    
     //SerialBT.enableSSP(); // "confirm with passkey" message
     SerialBT.register_callback(callback);
     if (!SerialBT.begin("Phone Lamp")) {
@@ -139,11 +139,12 @@ void setup()
       Serial.println("Bluetooth initialized");
     }
 
+    esp_bt_gap_cancel_discovery();  // Prevent new devices from discovering ESP32
 
     led(FLASH);
     uint8_t sec = 0;
-    while(!SerialBT.hasClient()){
-        Serial.printf("Waiting for client... %is\n", sec);
+    while(!SerialBT.connected()){
+        Serial.printf("Waiting for device to connect... %is\n", sec);
         sec++;
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
