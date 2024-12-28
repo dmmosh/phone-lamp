@@ -66,9 +66,9 @@ class MyServerCallbacks : public BLEServerCallbacks
 
         for (int8_t i = 0; i < 5; i++)
         {
-            Serial.printf("%i:", param->connect.remote_bda[i]);
+            Serial.printf("%.2x:", param->connect.remote_bda[i]);
         }
-        Serial.printf("%i\n", param->connect.remote_bda[5]);
+        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
 
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
@@ -117,7 +117,7 @@ void setup()
     BLEDevice::startAdvertising();
     led(FLASH);
     while (!deviceConnected){
-        Serial.printf("Waiting for device to connect... %s", BLEDevice::getAddress().toString().c_str());
+        Serial.printf("Waiting for device to connect... %s\n", BLEDevice::getAddress().toString().c_str());
         vTaskDelay(500/portTICK_PERIOD_MS);
     }
     pServer->getPeerDevices(true);
