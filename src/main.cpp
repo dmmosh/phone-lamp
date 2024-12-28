@@ -22,45 +22,41 @@
 #include "esp_gap_bt_api.h"
 #include "esp_log.h"
 
-// Tag for logging
-static const char *TAG = "BT_SCANNER";
-
-// Callback function to handle GAP events
+// Callback function for GAP events
 void bt_gap_callback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
     switch (event) {
-        case ESP_BT_GAP_DISC_RES_EVT: 
-            // A new device has been discovered
-            Serial.print("Device: ");
-            for (uint8_t i = 0; i < 5; i++)
+        case ESP_BT_GAP_DISC_RES_EVT: {
+            // A device was found
+            for (size_t i = 0; i < 6; i++)
             {
-                Serial.printf("%.2x:", param->disc_res.bda[i]);
+                Serial.printf("%.2x ", param->disc_res.bda[i]);
             }
-            Serial.printf("%.2x\n", param->disc_res.bda[5]);
-            
+            Serial.print("\n");            
 
-            // Check if the device has a name
+
             for (int i = 0; i < param->disc_res.num_prop; i++) {
                 if (param->disc_res.prop[i].type == ESP_BT_GAP_DEV_PROP_EIR) {
-                    ESP_LOGI(TAG, "Device name: %s",
-                             (char *)param->disc_res.prop[i].val);
+                    Serial.printf("Device name: %s\n",
+                                  (char *)param->disc_res.prop[i].val);
                 }
             }
-         break;
+            break;
+        }
 
-        case ESP_BT_GAP_DISC_STATE_CHANGED_EVT: 
+        case ESP_BT_GAP_DISC_STATE_CHANGED_EVT: {
             // Discovery state changed
             if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STARTED) {
                 Serial.println("Discovery started");
             } else if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) {
                 Serial.println("Discovery stopped");
             }
-        break;
+            break;
+        }
 
         default:
             break;
     }
 }
-
 #define LED 2
 #define OFF 0
 #define ON 1
@@ -208,6 +204,9 @@ void setup()
     esp_bt_gap_register_callback(bt_gap_callback);
 
     esp_bredr_tx_power_set(ESP_PWR_LVL_P9,ESP_PWR_LVL_P9);
+    
+    // Start Bluetooth discovery
+    Serial.println("Starting discovery...");
     esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, 10, 0);
     //Serial.println(SerialBT.getBtAddressString());
 
