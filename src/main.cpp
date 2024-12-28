@@ -68,7 +68,7 @@ class MyServerCallbacks : public BLEServerCallbacks
         {
             Serial.printf("%.2x:", param->connect.remote_bda[i]);
         }
-        Serial.printf("%.2x", param->connect.remote_bda[5]);
+        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
         
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
@@ -81,6 +81,20 @@ class MyServerCallbacks : public BLEServerCallbacks
     {
         deviceConnected = false;
         Serial.println("Device disconnected.");
+    }
+};
+
+BLEAdvertisedDevice* myDevice;
+
+class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
+    void onResult(BLEAdvertisedDevice advertisedDevice) {
+        Serial.print("Found Device: ");
+        Serial.println(advertisedDevice.toString().c_str());
+
+        if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(SERVICE_UUID)) {
+            BLEDevice::getScan()->stop();
+            myDevice = new BLEAdvertisedDevice(advertisedDevice);
+        }
     }
 };
 
@@ -134,8 +148,8 @@ void loop()
         // if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
         //     Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
         // }
-        Serial.println(device.getManufacturerData().c_str());
-        Serial.println(device.getServiceData().c_str());
+        //Serial.println(device.getManufacturerData().c_str());
+        //Serial.println(device.getServiceData().c_str());
         Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
     }
 
