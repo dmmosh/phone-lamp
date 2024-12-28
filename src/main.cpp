@@ -27,6 +27,7 @@ void bt_gap_callback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) 
     switch (event) {
         case ESP_BT_GAP_DISC_RES_EVT: {
             // A device was found
+            Serial.println("DEVICE FOUND");
             for (size_t i = 0; i < 6; i++)
             {
                 Serial.printf("%.2x ", param->disc_res.bda[i]);
@@ -204,7 +205,7 @@ void setup()
     esp_bt_gap_register_callback(bt_gap_callback);
 
     esp_bredr_tx_power_set(ESP_PWR_LVL_P9,ESP_PWR_LVL_P9);
-    
+
     // Start Bluetooth discovery
     Serial.println("Starting discovery...");
     esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, 10, 0);
