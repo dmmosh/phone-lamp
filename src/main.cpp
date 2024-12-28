@@ -58,17 +58,18 @@ class MyServerCallbacks : public BLEServerCallbacks
     void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     {   
         deviceConnected = true;
-        // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-        // for(const auto& pair: devices){
-        //     Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-        //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
-        // }
-
-        for (int8_t i = 0; i < 5; i++)
-        {
-            Serial.printf("%.2x:", param->connect.remote_bda[i]);
+        std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+        for(const auto& pair: devices){
+            Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+            Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         }
-        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
+
+        // for (int8_t i = 0; i < 5; i++)
+        // {
+        //     Serial.printf("%.2x:", param->connect.remote_bda[i]);
+        // }
+        // Serial.printf("%.2x\n", param->connect.remote_bda[5]);
+
         
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
@@ -115,8 +116,11 @@ void setup()
     pServer->getPeerDevices(true);
     
 
-    Serial.println(pService->getUUID().toString().c_str());
+    //Serial.println(pService->getUUID().toString().c_str());
 
+    while(1){
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    };
 
     BLEDevice::deinit();
 
@@ -142,6 +146,7 @@ void loop()
         // }
         //Serial.println(device.getManufacturerData().c_str());
         //Serial.println(device.getServiceData().c_str());
+        Serial.println("---------");
         Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
     }
 
