@@ -209,7 +209,7 @@ void setup()
 void loop()
 {   
 
-    BTScanResults* pResults = SerialBT.discover(1000);
+    BTScanResults* pResults = SerialBT.discover(2000);
     if(!pResults){
         Serial.println("Error BT Scan");
         vTaskDelay(1000/portTICK_PERIOD_MS);
