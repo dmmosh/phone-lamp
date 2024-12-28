@@ -203,17 +203,13 @@ void setup()
 
 //gn
 
-void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
-  Serial.printf("Found a device asynchronously: %s\n", pDevice->toString().c_str());
-}
-
 void loop()
 {   
 
-    BTScanResults* pResults = SerialBT.discover(1000);
-
+    BTScanResults* pResults = SerialBT.discover(10000);
     if(!pResults){
         Serial.println("Error BT Scan");
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     else if(pResults->getCount() == 0){
         Serial.println("No devices found");
@@ -226,6 +222,7 @@ void loop()
         }
     }
   
+    vTaskDelay(1000/portTICK_PERIOD_MS);
 
 
     // BLEScanResults results = scan->start(3);
