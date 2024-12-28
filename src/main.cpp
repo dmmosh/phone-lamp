@@ -117,7 +117,7 @@ void setup()
     BLEDevice::startAdvertising();
     led(FLASH);
     while (!deviceConnected){
-        Serial.println("Waiting for device to connect...");
+        Serial.printf("Waiting for device to connect... %s", BLEDevice::getAddress().toString().c_str());
         vTaskDelay(500/portTICK_PERIOD_MS);
     }
     pServer->getPeerDevices(true);
