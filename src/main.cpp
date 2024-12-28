@@ -104,14 +104,13 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
 */
 
 void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
- 
+
   if (event == ESP_SPP_SRV_OPEN_EVT) {
  
     Serial.println("Client Connected has address:");
     
 
     for (int i = 0; i < 6; i++) {
-    
         sprintf(((char*)mac)+2*i+i,"%.2x", param->srv_open.rem_bda[i]); // save to stack string
         mac[2*i+i+2] = ':'; // dont worry about last char - gets replaced by null termination char
         //Serial.printf("%.2x", param->srv_open.rem_bda[i]);
@@ -139,7 +138,7 @@ void setup()
       Serial.println("Bluetooth initialized");
     }
 
-
+    SerialBT.setPin("1234");
 
     led(FLASH);
     uint8_t sec = 0;
