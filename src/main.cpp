@@ -17,6 +17,7 @@
 
 // BLUETOOTH CLASSIC LIBRARIES / DATA
 #include <BluetoothSerial.h>
+#include "esp_bt.h"
 
 #define BT_DISCOVER_TIME 3000
 #define LED 2
@@ -154,6 +155,7 @@ void setup()
     Serial.println(mac);
     led(ON);
     SerialBT.disconnect();
+    esp_bredr_tx_power_set(ESP_PWR_LVL_P9,ESP_PWR_LVL_P9);
     //Serial.println(SerialBT.getBtAddressString());
 
     /*
