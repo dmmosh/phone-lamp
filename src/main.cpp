@@ -16,7 +16,7 @@
 
 // Variable to track connection status
 bool deviceConnected = false;
-uint8_t* mac = NULL;
+String mac;
 BLEScan *scan;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
@@ -64,9 +64,15 @@ class MyServerCallbacks : public BLEServerCallbacks
         //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
         // }
 
-        memcpy(mac, param->connect.remote_bda, 6); //this way youll have the peerdevice addres
+        Serial.printf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+  param->connect.remote_bda[0],
+  param->connect.remote_bda[1],
+  param->connect.remote_bda[2],
+  param->connect.remote_bda[3],
+  param->connect.remote_bda[4],
+  param->connect.remote_bda[5]
+);
 
-        Serial.print("\n");
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
         
@@ -110,13 +116,6 @@ void setup()
     pServer->getPeerDevices(true);
     BLEDevice::deinit();
 
-    for (size_t i = 0; i < 6; i++)
-    {
-        Serial.printf("%i ", mac[i]);
-    }
-    Serial.print("\n");
-    free(mac);
-    
     //Serial.println(mac);
     led(ON);
     scan = BLEDevice::getScan();
