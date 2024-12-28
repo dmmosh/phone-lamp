@@ -87,7 +87,7 @@ class MyServerCallbacks : public BLEServerCallbacks
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
         Serial.print("Found device: ");
-        Serial.println(advertisedDevice.toString().c_str());
+        Serial.printf("%s\n", advertisedDevice.getAddress().toString().c_str());
         
     }
 };
