@@ -1,4 +1,7 @@
 #include <Arduino.h>
+
+
+// BLE LIBRARIES / DATA 
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
@@ -6,18 +9,23 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLEAdvertising.h>
-
 #define SERVICE_UUID "9f46b94c-9574-4f6c-bd1b-ddc3a7a83a43"
 #define CHARACTERISTIC_UUID "afe8ef56-902f-4b38-a6a2-0eade0aca572"
+bool deviceConnected = false;
+BLEScan *scan;
+
+
+// BLUETOOTH CLASSIC LIBRARIES / DATA
+#include <BluetoothSerial.h>
+BluetoothSerial SerialBT;
+
 #define LED 2
 #define OFF 0
 #define ON 1
 #define FLASH 2
 
 // Variable to track connection status
-bool deviceConnected = false;
 String mac;
-BLEScan *scan;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
 
@@ -97,6 +105,18 @@ void setup()
 {
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
+
+    SerialBT.begin("Phone Lamp");
+
+
+    led(FLASH);
+    while(!SerialBT.connected()){
+        Serial.println("Waiting for connection to begin...");
+        vTaskDelay(500/portTICK_PERIOD_MS);
+    }
+    Serial.println(SerialBT.getBtAddressString());
+
+    /*
     BLEDevice::init("Phone Lamp");
 
     BLEServer *pServer = BLEDevice::createServer();
@@ -140,13 +160,15 @@ void setup()
     scan->setInterval(100);  // Scan interval
     scan->setWindow(99);     // Scan window
     //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
+    */
 }
 
 
 
 void loop()
 {
-    BLEScanResults results = scan->start(3);
+
+    // BLEScanResults results = scan->start(3);
     // for (size_t i = 0; i < results.getCount(); i++)
     // {
     //     BLEAdvertisedDevice device = results.getDevice(i);
