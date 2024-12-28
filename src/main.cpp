@@ -121,7 +121,6 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
     mac[17] = '\0';
 
-    Serial.println(mac);
   }
 }
 
@@ -150,7 +149,11 @@ void setup()
         sec++;
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
+
+    Serial.println("Device mac snatched.");
+    Serial.println(mac);
     led(ON);
+    SerialBT.disconnect();
     //Serial.println(SerialBT.getBtAddressString());
 
     /*
