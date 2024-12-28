@@ -17,12 +17,15 @@
 
 // BLUETOOTH CLASSIC LIBRARIES / DATA
 #include <BluetoothSerial.h>
-BluetoothSerial SerialBT;
 
+#define BT_DISCOVER_TIME 3000
 #define LED 2
 #define OFF 0
 #define ON 1
 #define FLASH 2
+BluetoothSerial SerialBT;
+esp_spp_role_t role = ESP_SPP_ROLE_SLAVE;   // or ESP_SPP_ROLE_MASTER
+esp_spp_sec_t sec_mask = ESP_SPP_SEC_NONE;  // or ESP_SPP_SEC_ENCRYPT|ESP_SPP_SEC_AUTHENTICATE to request pincode confirmation
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
@@ -120,9 +123,9 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
     Serial.println(mac);
   }
-
-    
 }
+
+
 
 void setup()
 {
@@ -139,7 +142,6 @@ void setup()
       Serial.println("Bluetooth initialized");
     }
 
-    esp_bt_gap_cancel_discovery();  // Prevent new devices from discovering ESP32
 
     led(FLASH);
     uint8_t sec = 0;
@@ -201,7 +203,46 @@ void setup()
 
 
 void loop()
-{
+{   
+    Serial.println("Starting discoverAsync...");
+  BTScanResults *btDeviceList = SerialBT.getScanResults();  // maybe accessing from different threads!
+  if (SerialBT.discoverAsync([](BTAdvertisedDevice *pDevice) {
+        // BTAdvertisedDeviceSet*set = reinterpret_cast<BTAdvertisedDeviceSet*>(pDevice);
+        // btDeviceList[pDevice->getAddress()] = * set;
+        Serial.printf(">>>>>>>>>>>Found a new device asynchronously: %s\n", pDevice->toString().c_str());
+      })) {
+    delay(BT_DISCOVER_TIME);
+    Serial.print("Stopping discoverAsync... ");
+    SerialBT.discoverAsyncStop();
+    Serial.println("discoverAsync stopped");
+    delay(5000);
+    if (btDeviceList->getCount() > 0) {
+      BTAddress addr;
+      int channel = 0;
+      Serial.println("Found devices:");
+      for (int i = 0; i < btDeviceList->getCount(); i++) {
+        BTAdvertisedDevice *device = btDeviceList->getDevice(i);
+        Serial.printf(" ----- %s  %s %d\n", device->getAddress().toString().c_str(), device->getName().c_str(), device->getRSSI());
+        std::map<int, std::string> channels = SerialBT.getChannels(device->getAddress());
+        Serial.printf("scanned for services, found %d\n", channels.size());
+        for (auto const &entry : channels) {
+          Serial.printf("     channel %d (%s)\n", entry.first, entry.second.c_str());
+        }
+        if (channels.size() > 0) {
+          addr = device->getAddress();
+          channel = channels.begin()->first;
+        }
+      }
+      if (addr) {
+        Serial.printf("connecting to %s - %d\n", addr.toString().c_str(), channel);
+        SerialBT.connect(addr, channel, sec_mask, role);
+      }
+    } else {
+      Serial.println("Didn't find any devices");
+    }
+  } else {
+    Serial.println("Error on discoverAsync f.e. not working after a \"connect\"");
+  }
 
     // BLEScanResults results = scan->start(3);
     // for (size_t i = 0; i < results.getCount(); i++)
