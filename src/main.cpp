@@ -29,6 +29,7 @@ BluetoothSerial SerialBT;
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
 char mac[18]; // mac address
+bool device_found = false; // device found close
 
 
 void flash_led(void* args){
@@ -124,7 +125,8 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
 // Callback function to handle discovered devices
 void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
-  Serial.printf("Found a device asynchronously: %s\n", pDevice->getAddress().toString().c_str());
+  device_found = true;
+  Serial.printf("Found a device asynchronously: %s - %i\n", pDevice->getAddress().toString().c_str(), pDevice->getRSSI());
 }
 
 
@@ -214,7 +216,12 @@ void loop()
 {   
 
     SerialBT.discoverAsync(btAdvertisedDeviceFound);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+
+    while(!device_found){
+        vTaskDelay(5/portTICK_PERIOD_MS);
+    }
+    device_found = false;
+
     SerialBT.discoverAsyncStop();
 
     // BTScanResults* pResults = SerialBT.discover(2000);
