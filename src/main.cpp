@@ -206,7 +206,6 @@ void setup()
     //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
     */
     
-    SerialBT.discoverAsync(btAdvertisedDeviceFound);
 }
 
 //gn
@@ -214,6 +213,9 @@ void setup()
 void loop()
 {   
 
+    SerialBT.discoverAsync(btAdvertisedDeviceFound);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    SerialBT.discoverAsyncStop();
 
     // BTScanResults* pResults = SerialBT.discover(2000);
     // if(!pResults){
@@ -233,7 +235,6 @@ void loop()
     // }
     //SerialBT.discoverClear();
   
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 
     // BLEScanResults results = scan->start(3);
     // for (size_t i = 0; i < results.getCount(); i++)
