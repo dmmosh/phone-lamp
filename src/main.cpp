@@ -116,6 +116,7 @@ void setup()
         Serial.println("Waiting for connection to begin...");
         vTaskDelay(500/portTICK_PERIOD_MS);
     }
+    led(ON);
     Serial.println(SerialBT.getBtAddressString());
 
     /*
