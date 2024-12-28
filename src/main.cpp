@@ -66,9 +66,9 @@ class MyServerCallbacks : public BLEServerCallbacks
 
         for (int8_t i = 0; i < 5; i++)
         {
-            Serial.printf("%x:", param->connect.remote_bda[i]);
+            Serial.printf("%i:", param->connect.remote_bda[i]);
         }
-        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
+        Serial.printf("%i\n", param->connect.remote_bda[5]);
 
         
         //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
