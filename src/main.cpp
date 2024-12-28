@@ -215,11 +215,12 @@ void loop()
         Serial.println("No devices found");
     }
     else {
-        for (uint16_t i = 0; i < pResults->getCount(); i++)
-        {
-            BTAdvertisedDevice* device =  pResults->getDevice(i);
-            Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
-        }
+        pResults->dump(&Serial);
+        // for (uint16_t i = 0; i < pResults->getCount(); i++)
+        // {
+        //     BTAdvertisedDevice* device =  pResults->getDevice(i);
+        //     Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
+        // }
     }
   
     vTaskDelay(1000/portTICK_PERIOD_MS);
