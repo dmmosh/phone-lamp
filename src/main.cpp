@@ -165,7 +165,7 @@ void setup()
 
     Serial.println("Device mac snatched.");
     Serial.println(mac);
-    led(ON);
+    led(OFF);
     SerialBT.disconnect();
 
     //Serial.println(SerialBT.getBtAddressString());
@@ -183,6 +183,7 @@ void setup()
         BLECharacteristic::PROPERTY_READ |
             BLECharacteristic::PROPERTY_WRITE);
 
+    //dskjclk
     pService->start();
     // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -224,6 +225,7 @@ void loop()
 {   
 
     SerialBT.discoverAsync(btAdvertisedDeviceFound);
+
 
     while(!device_found){
         vTaskDelay(5/portTICK_PERIOD_MS);
