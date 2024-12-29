@@ -15,16 +15,23 @@
 // BLEScan *scan;
 
 
-// BLUETOOTH CLASSIC LIBRARIES / DATA
-#include <BluetoothSerial.h>
+#include <Arduino.h>
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+#include "BLE2902.h"
+#include "BLEHIDDevice.h"
+#include "HIDTypes.h"
+#include "HIDKeyboardTypes.h"
+#include <driver/adc.h>
+
+
 
 
 #define LED 2
 #define OFF 0
 #define ON 1
-#define RSSI_NULL 1
 #define FLASH 2
-BluetoothSerial SerialBT;
 
 
 // Variable to track connection status
@@ -66,211 +73,75 @@ void led(const uint8_t new_state){
 }
 
 
-/*
-// BLE Server callback class
-class MyServerCallbacks : public BLEServerCallbacks
-{
-    void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
-    {   
-        deviceConnected = true;
-        // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-        // for(const auto& pair: devices){
-        //     Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-        //     Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
-        // }
+BLEHIDDevice* hid;
+BLECharacteristic* input;
+BLECharacteristic* output;
+BLEAdvertising *pAdvertising;
+BLEServer *pServer;
 
-        for (int8_t i = 0; i < 5; i++)
-        {
-            Serial.printf("%.2x:", param->connect.remote_bda[i]);
-        }
-        Serial.printf("%.2x\n", param->connect.remote_bda[5]);
+bool connected = false;
+bool restart = false;
 
-        
-        //mac = ((BLEDevice*)pServer->getPeerDevices(false)[0].peer_device)->getAddress().toString().c_str();
-        
-        Serial.println("Device connected.");
-    }
+class MyCallbacks : public BLEServerCallbacks {
+  void onConnect(BLEServer* pServer){
+    connected = true;
+    Serial.println("Connected");
+    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(true);
+    // NEEDED ACTIONS
+  }
 
-
-    void onDisconnect(BLEServer *pServer)
-    {
-        deviceConnected = false;
-        Serial.println("Device disconnected.");
-    }
+  void onDisconnect(BLEServer* pServer){
+    connected = false;
+    Serial.println("DisConnected");
+    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(false);
+    restart = true;
+  }
 };
 
-class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
-    void onResult(BLEAdvertisedDevice advertisedDevice) {
-        Serial.print("Found device: ");
-        Serial.printf("%s\n", advertisedDevice.getAddress().toString().c_str());
-        
-    }
-};
-*/
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Starting BLE work!");
+  BLEDevice::init("Phone Lamp");
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyCallbacks());
+  pServer->getPeerDevices(true);
 
-void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
+  hid = new BLEHIDDevice(pServer);
+  input = hid->inputReport(1); // <-- input REPORTID from report map
+  output = hid->outputReport(1); // <-- output REPORTID from report map
 
-  if (event == ESP_SPP_SRV_OPEN_EVT) {
- 
-    Serial.println("Client Connected has address:");
-    
+    std::string name = "Phone Lamp";
+  hid->manufacturer()->setValue(name);
 
-    for (int i = 0; i < 6; i++) {
-        sprintf(((char*)mac)+2*i+i,"%.2x", param->srv_open.rem_bda[i]); // save to stack string
-        mac[2*i+i+2] = ':'; // dont worry about last char - gets replaced by null termination char
-        //Serial.printf("%.2x", param->srv_open.rem_bda[i]);
-    }
+  hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+  hid->hidInfo(0x00,0x02);
 
-    mac[17] = '\0';
+  BLESecurity *pSecurity = new BLESecurity();
+  //  pSecurity->setKeySize();
+    pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
 
-  }
+    hid->startServices();
+
+    pAdvertising = pServer->getAdvertising();
+    pAdvertising->setAppearance(HID_BARCODE);
+    pAdvertising->addServiceUUID(hid->hidService()->getUUID());
+    pAdvertising->start();
+    hid->setBatteryLevel(7);
+
+    //ESP_LOGD(LOG_TAG, "Advertising started!");
+    //delay(portMAX_DELAY);
 }
 
-// Callback function to handle discovered devices
-void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice) {
-
-  if (!strcmp(pDevice->getAddress().toString().c_str(), mac)){
-    device_found = true;
-    rssi = pDevice->getRSSI();
-    Serial.printf("PHONE FOUND RSSI: %i\n", rssi);
-  }
-  //Serial.printf("DEVICE: %s - %i\n", pDevice->getAddress().toString().c_str(), pDevice->getRSSI());
-}
-
-
-
-void setup()
-{
-    Serial.begin(115200);
-    pinMode(LED, OUTPUT);
-    
-    //SerialBT.enableSSP(); // "confirm with passkey" message
-    SerialBT.register_callback(callback);
-    if (!SerialBT.begin("Phone Lamp")) {
-        Serial.println("An error occurred initializing Bluetooth");
-        vTaskDelay(500/portTICK_PERIOD_MS);
-        esp_restart();
-    } else {
-      Serial.println("Bluetooth initialized");
-    }
-
-
-    led(FLASH);
-    uint8_t sec = 0;
-    while(!SerialBT.connected()){
-        Serial.printf("Waiting for device to connect... %is\n", sec);
-        sec++;
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
-
-    Serial.println("Device mac snatched.");
-    Serial.println(mac);
-    led(OFF);
-    SerialBT.disconnect();
-
-    //Serial.println(SerialBT.getBtAddressString());
-
-    /*
-    BLEDevice::init("Phone Lamp");
-
-    BLEServer *pServer = BLEDevice::createServer();
-    pServer->setCallbacks(new MyServerCallbacks());
-
-    // pServer->getAdvertising()->setScanFilter(1,0);
-    BLEService *pService = pServer->createService(SERVICE_UUID);
-    BLECharacteristic *pCharacteristic = pService->createCharacteristic(
-        CHARACTERISTIC_UUID,
-        BLECharacteristic::PROPERTY_READ |
-            BLECharacteristic::PROPERTY_WRITE);
-
-    //dskjclk
-    pService->start();
-    // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
-    BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(SERVICE_UUID);
-    pAdvertising->setAppearance(0x004C);
-    BLEDevice::startAdvertising();
-    led(FLASH);
-    while (!deviceConnected){
-        Serial.printf("Waiting for device to connect... %s\n", BLEDevice::getAddress().toString().c_str());
-        vTaskDelay(500/portTICK_PERIOD_MS);
-    }
-    pServer->getPeerDevices(true);
-    
-
-    //Serial.println(pService->getUUID().toString().c_str());
-
-    // while(1){
-    //     vTaskDelay(1000/portTICK_PERIOD_MS);
-    // };
-
-    BLEDevice::deinit();
-
-    BLEDevice::init("");
-    //Serial.println(mac);
-    led(ON);
-    scan = BLEDevice::getScan();
-    scan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-    scan->setActiveScan(true);  // Enable active scan for better results
-    scan->setInterval(100);  // Scan interval
-    scan->setWindow(99);     // Scan window
-    //scan->start(3, false);   // Start scanning for 5 seconds (non-blocking)
-    */
-    
-}
-
-//gn
-
-void loop()
-{   
-
-    SerialBT.discoverAsync(btAdvertisedDeviceFound);
-
-
-    while(!device_found){
-        vTaskDelay(5/portTICK_PERIOD_MS);
-    } // when device is found
-    
-    if(rssi<  -45 || rssi == RSSI_NULL){
-        led(OFF);
-    } else {
-        led(ON);
-    }
-
-    device_found = false;
-
-    SerialBT.discoverAsyncStop();
-
-    // BTScanResults* pResults = SerialBT.discover(2000);
-    // if(!pResults){
-    //     Serial.println("Error BT Scan");
-    //     vTaskDelay(1000/portTICK_PERIOD_MS);
-    // }
-    // else if(pResults->getCount() == 0){
-    //     Serial.println("No devices found");
-    // }
-    // else {
-    //     pResults->dump(&Serial);
-    //     // for (uint16_t i = 0; i < pResults->getCount(); i++)
-    //     // {
-    //     //     BTAdvertisedDevice* device =  pResults->getDevice(i);
-    //     //     Serial.printf("DEVICE: %s %i\n", device->getAddress().toString().c_str(), device->getRSSI());
-    //     // }
-    // }
-    //SerialBT.discoverClear();
+void loop() {
   
-
-    // BLEScanResults results = scan->start(3);
-    // for (size_t i = 0; i < results.getCount(); i++)
-    // {
-    //     BLEAdvertisedDevice device = results.getDevice(i);
-    //     // if(!strcmp(mac.c_str(), device.getAddress().toString().c_str())){
-    //     //     Serial.printf("PHONE FOUND STRENGTH: %i\n", 100+device.getRSSI());
-    //     // }
-    //     //Serial.println(device.getManufacturerData().c_str());
-    //     //Serial.println(device.getServiceData().c_str());
-    //     Serial.println("---------");
-    //     Serial.printf("%i %s %s %s\n", device.getRSSI(),device.getName().c_str(), device.getAddress().toString().c_str(), device.getServiceUUID().toString().c_str());
-    // }
-
+  if(connected){
+    delay(10);
+  }
+  if (restart) {
+    restart = false;
+    pAdvertising->start();
+  }
+  delay(50);
 }
