@@ -36,8 +36,6 @@
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
-TaskHandle_t flash_led_task = NULL;
-int8_t rssi = RSSI_NULL;
 char mac[18]; // mac address
 bool device_found = false; // device found close
 
