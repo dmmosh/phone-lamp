@@ -41,7 +41,6 @@ BLEAdvertising *pAdvertising;
 BLEServer *pServer;
 
 bool connected = false;
-bool restart = false;
 
 
 class MyCallbacks : public BLEServerCallbacks {
@@ -64,10 +63,9 @@ class MyCallbacks : public BLEServerCallbacks {
 
   void onDisconnect(BLEServer* pServer){
     connected = false;
-    Serial.println("DisConnected");
+    Serial.println("Disconnect");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
-    restart = true;
   }
 };
 
@@ -108,6 +106,22 @@ void led(const uint8_t new_state){
     curr_state = new_state;
 }
 
+inline void connect_wait(){
+    uint16_t ms_5  = 0;
+    uint16_t seconds = 0;
+    while(!connected){
+
+        if(ms_5 >= 200){
+            Serial.printf("Waiting for device to pair... %is\n", seconds);
+            seconds++;
+            ms_5 = 0;
+        } else {
+        ms_5++;
+        }
+        vTaskDelay(5/portTICK_PERIOD_MS);
+    }
+}
+
 
 
 
@@ -141,41 +155,28 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
-    uint16_t ms_5  = 0;
-    uint16_t seconds = 0;
-    while(!connected){
-
-        if(ms_5 >= 200){
-            Serial.printf("Waiting for device to pair... %is\n", seconds);
-            seconds++;
-            ms_5 = 0;
-        } else {
-        ms_5++;
-        }
-        vTaskDelay(5/portTICK_PERIOD_MS);
-    }
-
+    
+    connect_wait();
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
     //delay(portMAX_DELAY);
 }
 
 void loop() {
-  
-  if(connected){
 
-    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-
-    for(const auto& pair: devices){
-        //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-        //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
-        Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
-    }
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-  }
-  if (restart) {
-    restart = false;
+  if(!connected){
     pAdvertising->start();
-  }
-  delay(50);
+    connect_wait();
+  }  
+  
+    Serial.println("Device connected...");
+
+    // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+
+    // for(const auto& pair: devices){
+    //     //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+    //     //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
+    //     Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
+    // }
+    vTaskDelay(1000/portTICK_PERIOD_MS);
 }
