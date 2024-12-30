@@ -49,8 +49,6 @@ TaskHandle_t led_timer_count_task = NULL;
 
 
 uint8_t led_timer = 0; // when it reaches 5 the led turns off
-bool led_timer_count_on = false;
-uint8_t reappear_time=0; 
 int8_t rssi;
 char mac[18];
 bool connected = false;
@@ -120,17 +118,6 @@ void led(const uint8_t new_state){
     curr_state = new_state;
 }
 
-void led_timer_countdown(void* args){
-    led_timer_count_on = true;
-    while(led_timer<5){
-        vTaskDelay(10/portTICK_PERIOD_MS);
-    }
-    led_timer = 0;
-    led_timer_count_on = false;
-    led(OFF);
-    vTaskDelete(NULL);
-    
-}
 
 
 inline void connect_wait(){
@@ -218,7 +205,7 @@ void loop() {
     // BLEClient* client = (BLEClient*)devices[0].peer_device;
 
   // Iterate through the results and display information
-  for (int i = 0; i < count; i++) {
+  for (uint16_t i = 0; i < count; i++) {
         BLEAdvertisedDevice device = scanResults.getDevice(i);
         
 
@@ -231,18 +218,14 @@ void loop() {
   }
 
     if(rssi > -75){
-        if(led_timer_count_on){
-            led_timer_count_on = false;
-            vTaskDelete(led_timer_count_task);
-        }
         led(ON);
+        led_timer = 0;
     } else{
-        if(led_timer == 0){
-            xTaskCreate(led_timer_countdown, "timer countdown", configMINIMAL_STACK_SIZE, NULL,1,&led_timer_count_task);
-        } else{
-            led_timer++;
-        }
+        led_timer++;
+    }
 
+    if(led_timer>= 5){
+        led(OFF);
     }
 
 
