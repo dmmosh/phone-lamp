@@ -171,7 +171,7 @@ void loop() {
   
     Serial.println("Device connected...");
     std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-    Serial.println(((BLEClient*)devices[0].peer_device)->toString().c_str());
+    Serial.println(((BLEClient*)devices[0].peer_device)->isConnected());
 
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
