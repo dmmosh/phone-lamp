@@ -49,6 +49,13 @@ class MyCallbacks : public BLEServerCallbacks {
     connected = true;
     Serial.println("Connected");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+
+    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    for(const auto& pair: devices){
+        Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+        Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
+    }
+
     desc->setNotifications(true);
     // NEEDED ACTIONS
   }
@@ -61,6 +68,8 @@ class MyCallbacks : public BLEServerCallbacks {
     restart = true;
   }
 };
+
+
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
