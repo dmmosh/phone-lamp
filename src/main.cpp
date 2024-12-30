@@ -183,10 +183,19 @@ void loop() {
   Serial.print("Devices found: ");
   Serial.println(count);
 
+    Serial.println("Device connected...");
+    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    BLEClient* client = (BLEClient*)devices[0].peer_device;
+
+    std::string address = client->getPeerAddress().toString();
 
   // Iterate through the results and display information
   for (int i = 0; i < count; i++) {
     BLEAdvertisedDevice device = scanResults.getDevice(i);
+
+    if(device.getAddress().toString() == address){
+        Serial.println("ADDRESS MATCH");
+    }
     Serial.print("Device Name: ");
     Serial.println(device.getName().c_str());
     Serial.print("Device Address: ");
@@ -196,10 +205,6 @@ void loop() {
     Serial.println("---------------------------");
   }
 
-    // Serial.println("Device connected...");
-    // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-    // BLEClient* client = (BLEClient*)devices[0].peer_device;
-    // Serial.println(client->getRssi());
 
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
@@ -208,5 +213,4 @@ void loop() {
     //     //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
     //     Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
     // }
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 }
