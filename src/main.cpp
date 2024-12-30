@@ -33,6 +33,34 @@
 #define ON 1
 #define FLASH 2
 
+// variables for the bluetooth server and hid device
+BLEHIDDevice* hid;
+BLECharacteristic* input;
+BLECharacteristic* output;
+BLEAdvertising *pAdvertising;
+BLEServer *pServer;
+
+bool connected = false;
+bool restart = false;
+
+
+class MyCallbacks : public BLEServerCallbacks {
+  void onConnect(BLEServer* pServer){
+    connected = true;
+    Serial.println("Connected");
+    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(true);
+    // NEEDED ACTIONS
+  }
+
+  void onDisconnect(BLEServer* pServer){
+    connected = false;
+    Serial.println("DisConnected");
+    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(false);
+    restart = true;
+  }
+};
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
@@ -70,32 +98,7 @@ void led(const uint8_t new_state){
 }
 
 
-BLEHIDDevice* hid;
-BLECharacteristic* input;
-BLECharacteristic* output;
-BLEAdvertising *pAdvertising;
-BLEServer *pServer;
 
-bool connected = false;
-bool restart = false;
-
-class MyCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer){
-    connected = true;
-    Serial.println("Connected");
-    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    desc->setNotifications(true);
-    // NEEDED ACTIONS
-  }
-
-  void onDisconnect(BLEServer* pServer){
-    connected = false;
-    Serial.println("DisConnected");
-    BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    desc->setNotifications(false);
-    restart = true;
-  }
-};
 
 void setup() {
   Serial.begin(115200);
@@ -127,12 +130,19 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
-    uint16_t seconds  = 0;
+    uint16_t ms_5  = 0;
+    uint16_t seconds = 0;
     while(!connected){
-        Serial.printf("Waiting for device to pair... %is\n", seconds);
-        seconds++;
+
+        if(ms_5 >= 200){
+            Serial.printf("Waiting for device to pair... %is\n", seconds);
+            seconds++;
+            ms_5 = 0;
+        } else {
+        ms_5++;
+        }
+        vTaskDelay(5/portTICK_PERIOD_MS);
     }
-    
 
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
