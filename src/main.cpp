@@ -40,10 +40,19 @@ BLECharacteristic* output;
 BLEAdvertising *pAdvertising;
 BLEServer *pServer;
 BLEScan* pBLEScan;
+
+
+// Variable to track connection status
+uint8_t curr_state = OFF; //led_
+TaskHandle_t flash_led_task = NULL;
+TaskHandle_t led_timer_count_task = NULL;
+
+
+uint8_t led_timer = 0; // when it reaches 5 the led turns off
+bool led_timer_count_on = false;
+uint8_t reappear_time=0; 
 int8_t rssi;
 char mac[18];
-
-
 bool connected = false;
 
 
@@ -81,12 +90,6 @@ class MyCallbacks : public BLEServerCallbacks {
 
 
 
-
-// Variable to track connection status
-uint8_t curr_state = OFF; //led_
-TaskHandle_t flash_led_task = NULL;
-
-
 void flash_led(void* args){
     while(curr_state == FLASH){
         digitalWrite(LED,HIGH);
@@ -116,6 +119,18 @@ void led(const uint8_t new_state){
     }
     curr_state = new_state;
 }
+
+void led_timer_countdown(void* args){
+    while(led_timer<5){
+        vTaskDelay(5/portTICK_PERIOD_MS);
+    }
+    led_timer = 0;
+    led(OFF);
+    led_timer_count_on = false;
+
+    
+}
+
 
 inline void connect_wait(){
     led(FLASH);
@@ -184,7 +199,6 @@ void setup() {
 }
 
 
-uint8_t reappear_time=0;
 void loop() {
 
   if(!connected){
@@ -217,12 +231,20 @@ void loop() {
   }
 
     if(rssi > -75){
-        led(ON);
+        if(led_timer_count_on){
+            led_timer_count_on = false;
+            vTaskDelete(&led_timer_count_task);
+        }
         Serial.printf("LED on reappear time: %is\n", reappear_time);
-        reappear_time = 0;
+        led(ON);
     } else{
-        led(OFF);
-        reappear_time++;
+        if(led_timer == 0){
+            led_timer_count_on = true;
+            xTaskCreate(led_timer_countdown, "timer countdown", configMINIMAL_STACK_SIZE, NULL,1,&led_timer_count_task);
+        } else{
+            led_timer++;
+        }
+
     }
 
 
