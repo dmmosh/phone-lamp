@@ -216,7 +216,7 @@ void loop() {
 
   }
 
-    if(rssi > -80){
+    if(rssi > -75){
         led(ON);
         Serial.printf("LED on reappear time: %is\n", reappear_time);
         reappear_time = 0;
