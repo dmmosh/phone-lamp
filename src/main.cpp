@@ -156,7 +156,6 @@ void setup() {
     hid->setBatteryLevel(7);
 
     
-    connect_wait();
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
     //delay(portMAX_DELAY);
