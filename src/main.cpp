@@ -183,6 +183,8 @@ void setup() {
     //delay(portMAX_DELAY);
 }
 
+
+uint8_t reappear_time=0;
 void loop() {
 
   if(!connected){
@@ -216,8 +218,11 @@ void loop() {
 
     if(rssi > -70){
         led(ON);
+        Serial.printf("LED on reappear time: %is\n", reappear_time);
+        reappear_time = 0;
     } else{
         led(OFF);
+        reappear_time++;
     }
 
 
