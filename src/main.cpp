@@ -196,13 +196,13 @@ void loop() {
     if(device.getAddress().toString() == address){
         Serial.println("ADDRESS MATCH");
     }
-    Serial.print("Device Name: ");
-    Serial.println(device.getName().c_str());
-    Serial.print("Device Address: ");
-    Serial.println(device.getAddress().toString().c_str());
-    Serial.print("RSSI: ");
-    Serial.println(device.getRSSI());
-    Serial.println("---------------------------");
+    // Serial.print("Device Name: ");
+    // Serial.println(device.getName().c_str());
+    // Serial.print("Device Address: ");
+    // Serial.println(device.getAddress().toString().c_str());
+    // Serial.print("RSSI: ");
+    // Serial.println(device.getRSSI());
+    // Serial.println("---------------------------");
   }
 
 
