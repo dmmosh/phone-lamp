@@ -40,6 +40,7 @@ BLECharacteristic* output;
 BLEAdvertising *pAdvertising;
 BLEServer *pServer;
 BLEScan* pBLEScan;
+int8_t rssi;
 char mac[18];
 
 
@@ -117,6 +118,7 @@ void led(const uint8_t new_state){
 }
 
 inline void connect_wait(){
+    led(FLASH);
     uint16_t ms_5  = 0;
     uint16_t seconds = 0;
     while(!connected){
@@ -130,6 +132,7 @@ inline void connect_wait(){
         }
         vTaskDelay(5/portTICK_PERIOD_MS);
     }
+    led(ON);
 }
 
 
@@ -138,6 +141,7 @@ inline void connect_wait(){
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
+  pinMode(LED,OUTPUT);
   BLEDevice::init("Phone Lamp");
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9); 
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
@@ -173,6 +177,7 @@ void setup() {
     pBLEScan->setInterval(100);     // Set scan interval (in milliseconds)
     pBLEScan->setWindow(99);        // Set scan window (in milliseconds)
     
+    
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
     //delay(portMAX_DELAY);
@@ -186,32 +191,34 @@ void loop() {
   }  
   
 
-    BLEScanResults scanResults = pBLEScan->start(1, false);
+    BLEScanResults scanResults = pBLEScan->start(1);
 
-  // Print the results
-  int count = scanResults.getCount();
+    // Print the results
+    uint8_t count = scanResults.getCount();
  
     // Serial.println("Device connected...");
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
     // BLEClient* client = (BLEClient*)devices[0].peer_device;
 
-
   // Iterate through the results and display information
   for (int i = 0; i < count; i++) {
-    BLEAdvertisedDevice device = scanResults.getDevice(i);
+        BLEAdvertisedDevice device = scanResults.getDevice(i);
+        
 
-    if(!strcmp(mac, device.getAddress().toString().c_str())){
-        Serial.printf("Signal strength: %i\n", device.getRSSI());
+        if(!strcmp(mac, device.getAddress().toString().c_str())){
+            rssi = device.getRSSI();
+            break;
+            
+        }
 
-    }
-    // Serial.print("Device Name: ");
-    // Serial.println(device.getName().c_str());
-    // Serial.print("Device Address: ");
-    // Serial.println(device.getAddress().toString().c_str());
-    // Serial.print("RSSI: ");
-    // Serial.println(device.getRSSI());
-    // Serial.println("---------------------------");
+
   }
+
+    if(rssi > -70){
+        led(ON);
+    } else{
+        led(OFF);
+    }
 
 
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
