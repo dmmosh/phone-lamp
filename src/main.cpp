@@ -106,7 +106,7 @@ void setup() {
   BLEDevice::init("Phone Lamp");
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyCallbacks());
-  pServer->getPeerDevices(true);
+  pServer->getPeerDevices(false);
 
   hid = new BLEHIDDevice(pServer);
   input = hid->inputReport(1); // <-- input REPORTID from report map
