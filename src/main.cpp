@@ -70,6 +70,47 @@ class MyCallbacks : public BLEServerCallbacks {
 };
 
 
+void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
+    switch (event) {
+        case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+            if (param->adv_start_cmpl.status == ESP_BT_STATUS_SUCCESS) {
+                Serial.println("Advertising started successfully");
+            } else {
+                Serial.printf("Failed to start advertising: %d", param->adv_start_cmpl.status);
+            }
+            break;
+
+        case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
+            if (param->adv_stop_cmpl.status == ESP_BT_STATUS_SUCCESS) {
+                Serial.println("Advertising stopped successfully");
+            } else {
+                Serial.printf("Failed to stop advertising: %d", param->adv_stop_cmpl.status);
+            }
+            break;
+
+        case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:
+            Serial.println("Scan parameters set");
+            break;
+
+        case ESP_GAP_BLE_SCAN_RESULT_EVT:
+            Serial.println("Scan result: Device found");
+            break;
+
+        case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
+            Serial.println("Advertising data set");
+            break;
+
+        case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
+            Serial.println("Connection parameters updated");
+            break;
+
+        default:
+            ESP_LOGW(TAG, "Unhandled GAP event: %d", event);
+            break;
+    }
+}
+
+
 
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
@@ -155,6 +196,7 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
+    esp_ble_gap_register_callback(gap_event_handler);
     
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
@@ -169,6 +211,7 @@ void loop() {
   }  
   
     Serial.println("Device connected...");
+
 
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
