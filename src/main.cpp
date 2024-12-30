@@ -44,11 +44,11 @@ bool connected = false;
 
 
 class MyCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer){
+  void onConnect(BLEServer* pServer, esp_ble_gap_cb_param_t *param){
     connected = true;
     Serial.println("Connected");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-
+    Serial.printf("%i\n",param->read_rssi_cmpl.rssi);
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
     // for(const auto& pair: devices){
@@ -173,7 +173,6 @@ void setup() {
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyCallbacks());
   pServer->getPeerDevices(false);
-    esp_ble_gap_register_callback(gap_event_handler);
 
   hid = new BLEHIDDevice(pServer);
   input = hid->inputReport(1); // <-- input REPORTID from report map
@@ -197,6 +196,7 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
+    esp_ble_gap_register_callback(gap_event_handler);
     
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
