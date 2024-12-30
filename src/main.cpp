@@ -121,13 +121,14 @@ void led(const uint8_t new_state){
 }
 
 void led_timer_countdown(void* args){
+    led_timer_count_on = true;
     while(led_timer<5){
-        vTaskDelay(5/portTICK_PERIOD_MS);
+        vTaskDelay(10/portTICK_PERIOD_MS);
     }
     led_timer = 0;
-    led(OFF);
     led_timer_count_on = false;
-
+    led(OFF);
+    vTaskDelete(NULL);
     
 }
 
@@ -227,19 +228,16 @@ void loop() {
             
         }
 
-
   }
 
     if(rssi > -75){
         if(led_timer_count_on){
             led_timer_count_on = false;
-            vTaskDelete(&led_timer_count_task);
+            vTaskDelete(led_timer_count_task);
         }
-        Serial.printf("LED on reappear time: %is\n", reappear_time);
         led(ON);
     } else{
         if(led_timer == 0){
-            led_timer_count_on = true;
             xTaskCreate(led_timer_countdown, "timer countdown", configMINIMAL_STACK_SIZE, NULL,1,&led_timer_count_task);
         } else{
             led_timer++;
