@@ -200,7 +200,8 @@ void loop() {
     BLEAdvertisedDevice device = scanResults.getDevice(i);
 
     if(!strcmp(mac, device.getAddress().toString().c_str())){
-        Serial.println("ADDRESS MATCH");
+        Serial.printf("Signal strength:", device.getRSSI());
+
     }
     // Serial.print("Device Name: ");
     // Serial.println(device.getName().c_str());
