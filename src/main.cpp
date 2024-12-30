@@ -45,7 +45,6 @@ BLEScan* pBLEScan;
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
-TaskHandle_t led_timer_count_task = NULL;
 
 
 uint8_t led_timer = 0; // when it reaches 5 the led turns off
@@ -224,7 +223,8 @@ void loop() {
         led_timer++;
     }
 
-    if(led_timer>= 5){
+    if(led_timer>= 4){
+        led_timer = 0;
         led(OFF);
     }
 
