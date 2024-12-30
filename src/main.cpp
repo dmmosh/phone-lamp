@@ -223,7 +223,7 @@ void loop() {
         led_timer++;
     }
 
-    if(led_timer>= 4){
+    if(led_timer>= 3){
         led_timer = 0;
         led(OFF);
     }
