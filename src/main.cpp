@@ -173,6 +173,7 @@ void setup() {
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyCallbacks());
   pServer->getPeerDevices(false);
+    esp_ble_gap_register_callback(gap_event_handler);
 
   hid = new BLEHIDDevice(pServer);
   input = hid->inputReport(1); // <-- input REPORTID from report map
@@ -196,7 +197,6 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
-    esp_ble_gap_register_callback(gap_event_handler);
     
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
