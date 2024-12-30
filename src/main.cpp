@@ -44,11 +44,11 @@ bool connected = false;
 
 
 class MyCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer, esp_ble_gap_cb_param_t *param){
+  void onConnect(BLEServer* pServer){
     connected = true;
     Serial.println("Connected");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    Serial.printf("%i\n",param->read_rssi_cmpl.rssi);
+    
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
     // for(const auto& pair: devices){
