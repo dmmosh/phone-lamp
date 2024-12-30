@@ -50,13 +50,13 @@ class MyCallbacks : public BLEServerCallbacks {
     Serial.println("Connected");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
 
-    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
-    for(const auto& pair: devices){
-        //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-        //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
-        Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
-    }
+    // for(const auto& pair: devices){
+    //     //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+    //     //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
+    //     Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
+    // }
 
     desc->setNotifications(true);
     // NEEDED ACTIONS
@@ -163,7 +163,15 @@ void setup() {
 void loop() {
   
   if(connected){
-    delay(10);
+
+    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+
+    for(const auto& pair: devices){
+        //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
+        //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
+        Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
+    }
+    vTaskDelay(1000/portTICK_PERIOD_MS);
   }
   if (restart) {
     restart = false;
