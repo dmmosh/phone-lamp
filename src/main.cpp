@@ -37,8 +37,6 @@
 // Variable to track connection status
 uint8_t curr_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
-char mac[18]; // mac address
-bool device_found = false; // device found close
 
 
 void flash_led(void* args){
@@ -111,7 +109,7 @@ void setup() {
   input = hid->inputReport(1); // <-- input REPORTID from report map
   output = hid->outputReport(1); // <-- output REPORTID from report map
 
-    std::string name = "Phone Lamp";
+    std::string name = "Phone Lamp";    
   hid->manufacturer()->setValue(name);
 
   hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
@@ -128,6 +126,14 @@ void setup() {
     pAdvertising->addServiceUUID(hid->hidService()->getUUID());
     pAdvertising->start();
     hid->setBatteryLevel(7);
+
+    uint16_t seconds  = 0;
+    while(!connected){
+        Serial.printf("Waiting for device to pair... %is\n", seconds);
+        seconds++;
+    }
+    
+
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
     //delay(portMAX_DELAY);
