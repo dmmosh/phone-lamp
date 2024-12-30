@@ -40,25 +40,32 @@ BLECharacteristic* output;
 BLEAdvertising *pAdvertising;
 BLEServer *pServer;
 BLEScan* pBLEScan;
+char mac[18];
 
 
 bool connected = false;
 
 
 class MyCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer){
+  void onConnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param){
     connected = true;
     Serial.println("Connected");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     
-    
+    for (int i = 0; i < 6; i++) {
+        sprintf(((char*)mac)+2*i+i,"%.2x", param->connect.remote_bda[i]); // save to stack string
+        mac[2*i+i+2] = ':'; // dont worry about last char - gets replaced by null termination char
+        //Serial.printf("%.2x", param->srv_open.rem_bda[i]);
+    }
 
+    mac[17] = '\0';
+    
     // for(const auto& pair: devices){
     //     //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
     //     //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
     //     Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
     // }
-
+    Serial.print(mac);
     desc->setNotifications(true);
     // NEEDED ACTIONS
   }
