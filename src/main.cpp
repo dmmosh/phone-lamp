@@ -51,6 +51,8 @@ class MyCallbacks : public BLEServerCallbacks {
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
 
     std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    Serial.println(((BLEClient*)devices[0].peer_device)->getRssi());
+
     for(const auto& pair: devices){
         Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
         Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
