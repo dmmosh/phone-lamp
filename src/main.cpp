@@ -54,7 +54,7 @@ class MyCallbacks : public BLEServerCallbacks {
 
     for(const auto& pair: devices){
         //Serial.println((int)((BLEClient*)pair.second.peer_device)->getConnId());
-        Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
+        //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
         Serial.println(((BLEClient*)pair.second.peer_device)->getPeerAddress().toString().c_str());
     }
 
