@@ -74,7 +74,7 @@ class MyCallbacks : public BLEServerCallbacks {
     // }
     Serial.println(mac);
     desc->setNotifications(true);
-    // NEEDED ACTIONS
+    // NEEDED ACTIONScdjknckj
   }
 
   void onDisconnect(BLEServer* pServer){
