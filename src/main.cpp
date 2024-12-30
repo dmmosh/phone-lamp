@@ -39,6 +39,8 @@ BLECharacteristic* input;
 BLECharacteristic* output;
 BLEAdvertising *pAdvertising;
 BLEServer *pServer;
+BLEScan* pBLEScan;
+
 
 bool connected = false;
 
@@ -156,6 +158,10 @@ void setup() {
     pAdvertising->start();
     hid->setBatteryLevel(7);
 
+    pBLEScan = BLEDevice::getScan();  
+    pBLEScan->setActiveScan(true);  // Set active scan to get more information (e.g., RSSI)
+    pBLEScan->setInterval(100);     // Set scan interval (in milliseconds)
+    pBLEScan->setWindow(99);        // Set scan window (in milliseconds)
     
 
     //ESP_LOGD(LOG_TAG, "Advertising started!");
@@ -169,10 +175,30 @@ void loop() {
     connect_wait();
   }  
   
-    Serial.println("Device connected...");
-    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-    BLEClient* client = (BLEClient*)devices[0].peer_device;
-    Serial.println(client->getRssi());
+
+    BLEScanResults scanResults = pBLEScan->start(SCAN_TIME, false);
+
+  // Print the results
+  int count = scanResults.getCount();
+  Serial.print("Devices found: ");
+  Serial.println(count);
+
+  // Iterate through the results and display information
+  for (int i = 0; i < count; i++) {
+    BLEScanResult device = scanResults.getDevice(i);
+    Serial.print("Device Name: ");
+    Serial.println(device.getName().c_str());
+    Serial.print("Device Address: ");
+    Serial.println(device.getAddress().toString().c_str());
+    Serial.print("RSSI: ");
+    Serial.println(device.getRSSI());
+    Serial.println("---------------------------");
+  }
+
+    // Serial.println("Device connected...");
+    // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    // BLEClient* client = (BLEClient*)devices[0].peer_device;
+    // Serial.println(client->getRssi());
 
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
 
