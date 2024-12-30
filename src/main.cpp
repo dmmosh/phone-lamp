@@ -139,6 +139,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
   BLEDevice::init("Phone Lamp");
+  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9); 
+  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
+  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_SCAN ,ESP_PWR_LVL_P9);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyCallbacks());
   pServer->getPeerDevices(false);
@@ -187,9 +190,7 @@ void loop() {
 
   // Print the results
   int count = scanResults.getCount();
-  Serial.print("Devices found: ");
-  Serial.println(count);
-
+ 
     // Serial.println("Device connected...");
     // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
     // BLEClient* client = (BLEClient*)devices[0].peer_device;
