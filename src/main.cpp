@@ -176,16 +176,17 @@ void loop() {
   }  
   
 
-    BLEScanResults scanResults = pBLEScan->start(SCAN_TIME, false);
+    BLEScanResults scanResults = pBLEScan->start(1, false);
 
   // Print the results
   int count = scanResults.getCount();
   Serial.print("Devices found: ");
   Serial.println(count);
 
+
   // Iterate through the results and display information
   for (int i = 0; i < count; i++) {
-    BLEScanResult device = scanResults.getDevice(i);
+    BLEAdvertisedDevice device = scanResults.getDevice(i);
     Serial.print("Device Name: ");
     Serial.println(device.getName().c_str());
     Serial.print("Device Address: ");
