@@ -65,7 +65,7 @@ class MyCallbacks : public BLEServerCallbacks {
     //     //Serial.println(((BLEClient*)pair.second.peer_device)->getRssi());
     //     Serial.printf("%i\n",((BLEClient*)pair.second.peer_device)->getRssi());
     // }
-    Serial.print(mac);
+    Serial.println(mac);
     desc->setNotifications(true);
     // NEEDED ACTIONS
   }
@@ -190,17 +190,16 @@ void loop() {
   Serial.print("Devices found: ");
   Serial.println(count);
 
-    Serial.println("Device connected...");
-    std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
-    BLEClient* client = (BLEClient*)devices[0].peer_device;
+    // Serial.println("Device connected...");
+    // std::map<uint16_t, conn_status_t> devices = pServer->getPeerDevices(false);
+    // BLEClient* client = (BLEClient*)devices[0].peer_device;
 
-    std::string address = client->getPeerAddress().toString();
 
   // Iterate through the results and display information
   for (int i = 0; i < count; i++) {
     BLEAdvertisedDevice device = scanResults.getDevice(i);
 
-    if(device.getAddress().toString() == address){
+    if(!strcmp(mac, device.getAddress().toString().c_str())){
         Serial.println("ADDRESS MATCH");
     }
     // Serial.print("Device Name: ");
