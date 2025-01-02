@@ -214,6 +214,10 @@ void setup() {
   pinMode(RED,OUTPUT);
   pinMode(GREEN,OUTPUT);
   pinMode(BLUE,OUTPUT);
+    analogWrite(RED,LOW);
+    analogWrite(GREEN,LOW);
+    analogWrite(BLUE,LOW);
+
   BLEDevice::init("Phone Lamp");
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9); 
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
