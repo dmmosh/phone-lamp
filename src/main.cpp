@@ -33,6 +33,11 @@
 #define ON 1
 #define FLASH 2
 
+#define RED 2
+#define GREEN 4
+#define BLUE 16
+#define MAX 255
+
 // variables for the bluetooth server and hid device
 BLEHIDDevice* hid;
 BLECharacteristic* input;
@@ -43,8 +48,12 @@ BLEScan* pBLEScan;
 
 
 // Variable to track connection status
-uint8_t curr_state = OFF; //led_
+uint8_t curr_led_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
+
+// variable to track led lamp itself
+uint8_t curr_lamp_state = OFF; //led_
+TaskHandle_t lamp_rgb_task = NULL;
 
 
 uint8_t led_timer = 0; // when it reaches 5 the led turns off
@@ -88,7 +97,7 @@ class MyCallbacks : public BLEServerCallbacks {
 
 
 void flash_led(void* args){
-    while(curr_state == FLASH){
+    while(curr_led_state == FLASH){
         digitalWrite(LED,HIGH);
         vTaskDelay(500/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
@@ -100,21 +109,79 @@ void flash_led(void* args){
 void led(const uint8_t new_state){  
     // state: new state
     // 
-    if(new_state == FLASH && curr_state != FLASH){ 
+    if(new_state == curr_led_state){ // base case
+        return;
+    }
+
+    if(new_state == FLASH){ 
         xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
-    } else if (new_state == ON && curr_state != ON){
-        if(curr_state == FLASH){
+    } else if (new_state == ON){
+        if(curr_led_state == FLASH){
             vTaskDelete(flash_led_task);
         }
         digitalWrite(LED,HIGH);
         
-    } else if (new_state == OFF && curr_state != OFF){
-        if(curr_state == FLASH){
+    } else if (new_state == OFF){
+        if(curr_led_state == FLASH){
             vTaskDelete(flash_led_task);
         }
         digitalWrite(LED,LOW);
     }
-    curr_state = new_state;
+    curr_led_state = new_state;
+}
+
+
+void rgb_lamp(void* args){
+
+    uint8_t r = MAX;
+    uint8_t g = 0;
+    uint8_t b = 0;
+
+    while(curr_lamp_state == ON){
+
+        analogWrite(RED, r);
+        analogWrite(GREEN,g);
+        analogWrite(BLUE, b);
+
+        if(r == MAX){
+            if(g<20 && b<20){
+                vTaskDelay(200/portTICK_PERIOD_MS);
+            }
+
+            if(b){
+                b--;
+            } else {
+                g++;
+            }
+        } if (g == MAX){
+            if(r){
+                r--;
+            } else {
+                b++;
+            }
+        } if (b == MAX){
+            if(g){
+                g--;
+            } else {
+                r++;
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
+
+
+void lamp(const uint8_t new_state){
+    if(new_state == curr_lamp_state){
+        return;
+    }
+
+    if(new_state == ON){
+        xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,2,&lamp_rgb_task);
+    } else {
+        vTaskDelete(lamp_rgb_task);
+    }
+    curr_lamp_state = new_state;
 }
 
 
@@ -144,6 +211,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
   pinMode(LED,OUTPUT);
+  pinMode(RED,OUTPUT);
+  pinMode(GREEN,OUTPUT);
+  pinMode(BLUE,OUTPUT);
   BLEDevice::init("Phone Lamp");
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9); 
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
@@ -217,7 +287,7 @@ void loop() {
   }
 
     if(rssi > -75){
-        led(ON);
+        lamp(ON);
         led_timer = 0;
     } else{
         led_timer++;
@@ -225,7 +295,7 @@ void loop() {
 
     if(led_timer>= 3){
         led_timer = 0;
-        led(OFF);
+        lamp(OFF);
     }
 
 
