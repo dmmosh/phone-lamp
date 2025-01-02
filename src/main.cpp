@@ -180,9 +180,13 @@ void lamp(const uint8_t new_state){
         xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,2,&lamp_rgb_task);
     } else {
         vTaskDelete(lamp_rgb_task);
+        analogWrite(RED,LOW);
+        analogWrite(GREEN,LOW);
+        analogWrite(BLUE,LOW);
     }
     curr_lamp_state = new_state;
 }
+
 
 
 
