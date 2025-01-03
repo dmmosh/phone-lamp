@@ -270,7 +270,6 @@ void setup() {
 void loop() {
 
   if(!connected){
-    led(FLASH);
     lamp(OFF);
     pAdvertising->start();
     connect_wait();
@@ -299,10 +298,9 @@ void loop() {
         }
 
   }
-
+    Serial.println(rssi);
     if(rssi > -75){
         lamp(ON);
-        led(ON);
         led_timer = 0;
     } else{
         led_timer++;
@@ -311,7 +309,6 @@ void loop() {
     if(led_timer>= 3){
         led_timer = 0;
         lamp(OFF);
-        led(OFF);
     }
 
 
