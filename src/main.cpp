@@ -186,12 +186,13 @@ void rgb_lamp(void* args){
 
 
 void lamp(const uint8_t new_state){
-    
+    // why  no base case? data races
+    // the time it takes to check if statements the current state could have already changed
+    // and trying to create an already existing task or deleting a nonexistent one will crash the system
 
     if(new_state == ON && curr_lamp_state != ON){
         xTaskCreate(rgb_lamp, "rgb lamp", 2048,NULL,1,&lamp_rgb_task);
     } else if (new_state == OFF && curr_lamp_state != OFF) {
-
         vTaskDelete(lamp_rgb_task);
         analogWrite(RED,LOW);
         analogWrite(GREEN,LOW);
@@ -239,9 +240,12 @@ void setup() {
   pinMode(RED,OUTPUT);
   pinMode(GREEN,OUTPUT);
   pinMode(BLUE,OUTPUT);
+
+    analogWrite(LED,LOW);
     analogWrite(RED,LOW);
     analogWrite(GREEN,LOW);
     analogWrite(BLUE,LOW);
+
 
   BLEDevice::init("Phone Lamp");
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9); 
@@ -318,6 +322,7 @@ void loop() {
     Serial.println(rssi);
     if(rssi > -75){
         lamp(ON);
+        led(ON);
         led_timer = 0;
     } else{
         led_timer++;
@@ -325,6 +330,7 @@ void loop() {
 
     if(led_timer>= 3){
         led_timer = 0;
+        led(OFF);
         lamp(OFF);
     }
 
