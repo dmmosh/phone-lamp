@@ -167,10 +167,8 @@ inline void connect_wait(){
     while(!connected){
         
         if(ms_5 >= 200){    
-            if(seconds<11){
+            if(seconds<11){ // note: at 10 second mark, it sets led to LOW and it stays there afterwards
             digitalWrite(LED,seconds%2);
-            }else {
-                digitalWrite(LED,LOW);
             }
             Serial.printf("Waiting for device to pair... %is\n", seconds);
             seconds++;
