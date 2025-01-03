@@ -164,8 +164,8 @@ inline void connect_wait(){
     uint16_t seconds = 0;
     while(!connected){
         
+        digitalWrite(LED,seconds%2);
         if(ms_5 >= 200){
-            digitalWrite(LED,seconds%2);
 
             Serial.printf("Waiting for device to pair... %is\n", seconds);
             seconds++;
