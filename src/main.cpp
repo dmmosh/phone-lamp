@@ -47,6 +47,8 @@ BLEServer *pServer;
 BLEScan* pBLEScan;
 
 
+
+// NOTE: led and lamp states ONLY CALLED in setup and loop
 // Variable to track connection status
 uint8_t curr_led_state = OFF; //led_
 TaskHandle_t flash_led_task = NULL;
@@ -88,6 +90,7 @@ class MyCallbacks : public BLEServerCallbacks {
 
   void onDisconnect(BLEServer* pServer){
     connected = false;
+    rssi = -100;
     Serial.println("Disconnect");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
@@ -113,6 +116,8 @@ void led(const uint8_t new_state){
         return;
     }
 
+    curr_led_state = new_state;
+
     if(new_state == FLASH){ 
         xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
     } else if (new_state == ON){
@@ -127,7 +132,6 @@ void led(const uint8_t new_state){
         }
         digitalWrite(LED,LOW);
     }
-    curr_led_state = new_state;
 }
 
 
@@ -166,6 +170,7 @@ void rgb_lamp(void* args){
                 r++;
             }
         }
+        vTaskDelay(7/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
@@ -176,22 +181,21 @@ void lamp(const uint8_t new_state){
         return;
     }
 
+    curr_lamp_state = new_state;
     if(new_state == ON){
-        xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,2,&lamp_rgb_task);
+        xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,1,&lamp_rgb_task);
     } else {
         vTaskDelete(lamp_rgb_task);
         analogWrite(RED,LOW);
         analogWrite(GREEN,LOW);
         analogWrite(BLUE,LOW);
     }
-    curr_lamp_state = new_state;
 }
 
 
 
 
 inline void connect_wait(){
-    led(FLASH);
     uint16_t ms_5  = 0;
     uint16_t seconds = 0;
     while(!connected){
@@ -205,7 +209,6 @@ inline void connect_wait(){
         }
         vTaskDelay(5/portTICK_PERIOD_MS);
     }
-    led(ON);
 }
 
 
@@ -267,8 +270,11 @@ void setup() {
 void loop() {
 
   if(!connected){
+    led(FLASH);
+    lamp(OFF);
     pAdvertising->start();
     connect_wait();
+    lamp(ON);
   }  
   
 
@@ -296,6 +302,7 @@ void loop() {
 
     if(rssi > -75){
         lamp(ON);
+        led(ON);
         led_timer = 0;
     } else{
         led_timer++;
@@ -304,6 +311,7 @@ void loop() {
     if(led_timer>= 3){
         led_timer = 0;
         lamp(OFF);
+        led(OFF);
     }
 
 
