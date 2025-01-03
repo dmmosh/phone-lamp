@@ -64,6 +64,16 @@ char mac[18];
 bool connected = false;
 
 
+
+void flash_led(void* args);
+void led(const uint8_t new_state);
+void rgb_lamp(void* args);
+void lamp(const uint8_t new_state);
+inline void connect_wait();
+bool str_equals(const char* str1, const char* str2);
+
+
+
 class MyCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param){
     connected = true;
