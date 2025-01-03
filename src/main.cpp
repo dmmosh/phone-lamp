@@ -32,9 +32,9 @@
 #define OFF 0
 #define ON 1
 
-#define RED 2
-#define GREEN 4
-#define BLUE 16
+#define RED 4
+#define GREEN 16
+#define BLUE 17
 #define MAX 255
 
 // variables for the bluetooth server and hid device
