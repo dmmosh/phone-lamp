@@ -103,7 +103,7 @@ void flash_led(void* args){
         digitalWrite(LED,HIGH);
         vTaskDelay(500/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
@@ -111,20 +111,15 @@ void flash_led(void* args){
 void led(const uint8_t new_state){  
     // state: new state
     // 
-    if(new_state == curr_led_state){ // base case
-        return;
-    }
-
-
-    if(new_state == FLASH){ 
+    if(new_state == FLASH && curr_led_state != FLASH){ 
         xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
-    } else if (new_state == ON){
+    } else if (new_state == ON && curr_led_state != ON){
         if(curr_led_state == FLASH){
             vTaskDelete(flash_led_task);
         }
         digitalWrite(LED,HIGH);
         
-    } else if (new_state == OFF){
+    } else if (new_state == OFF && curr_led_state != OFF){
         if(curr_led_state == FLASH){
             vTaskDelete(flash_led_task);
         }
@@ -176,17 +171,13 @@ void rgb_lamp(void* args){
 
 
 void lamp(const uint8_t new_state){
-    if(new_state == curr_lamp_state){
-        return;
-    }
+    
 
-    if(new_state == ON){
-        //xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,1,&lamp_rgb_task);
-        analogWrite(RED,255);
-        analogWrite(GREEN,0);
-        analogWrite(BLUE,0);
-    } else {
-        //vTaskDelete(lamp_rgb_task);
+    if(new_state == ON && curr_lamp_state != ON){
+        xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,1,&lamp_rgb_task);
+    } else if (new_state == OFF && curr_lamp_state != OFF) {
+        
+        vTaskDelete(lamp_rgb_task);
         analogWrite(RED,LOW);
         analogWrite(GREEN,LOW);
         analogWrite(BLUE,LOW);
