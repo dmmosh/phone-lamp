@@ -104,7 +104,7 @@ void flash_led(void* args){
         digitalWrite(LED,HIGH);
         vTaskDelay(500/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        vTaskDelay(500/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
@@ -181,7 +181,6 @@ void lamp(const uint8_t new_state){
         return;
     }
 
-    curr_lamp_state = new_state;
     if(new_state == ON){
         xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,1,&lamp_rgb_task);
     } else {
@@ -190,6 +189,7 @@ void lamp(const uint8_t new_state){
         analogWrite(GREEN,LOW);
         analogWrite(BLUE,LOW);
     }
+    curr_lamp_state = new_state;
 }
 
 
