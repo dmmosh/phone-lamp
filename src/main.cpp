@@ -116,7 +116,6 @@ void led(const uint8_t new_state){
         return;
     }
 
-    curr_led_state = new_state;
 
     if(new_state == FLASH){ 
         xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
@@ -132,6 +131,7 @@ void led(const uint8_t new_state){
         }
         digitalWrite(LED,LOW);
     }
+    curr_led_state = new_state;
 }
 
 
