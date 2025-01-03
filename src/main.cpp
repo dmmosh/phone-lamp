@@ -186,7 +186,7 @@ void lamp(const uint8_t new_state){
         analogWrite(GREEN,0);
         analogWrite(BLUE,0);
     } else {
-        vTaskDelete(lamp_rgb_task);
+        //vTaskDelete(lamp_rgb_task);
         analogWrite(RED,LOW);
         analogWrite(GREEN,LOW);
         analogWrite(BLUE,LOW);
