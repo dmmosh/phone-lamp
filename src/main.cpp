@@ -162,13 +162,13 @@ void lamp(const uint8_t new_state){
 inline void connect_wait(){
     uint16_t ms_5  = 0;
     uint16_t seconds = 0;
-    bool led_state = OFF;
+    uint8_t led_state = OFF;
     while(!connected){
         
         if(ms_5 >= 200){
             led_state = (led_state == ON) ? OFF : ON;
             digitalWrite(LED,led_state);
-
+            
             Serial.printf("Waiting for device to pair... %is\n", seconds);
             seconds++;
             ms_5 = 0;
