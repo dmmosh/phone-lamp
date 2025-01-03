@@ -279,6 +279,7 @@ void loop() {
   }
     Serial.println(rssi);
     if(rssi > -75){
+        digitalWrite(LED,ON);
         lamp(ON);
         led_timer = 0;
     } else{
@@ -286,7 +287,7 @@ void loop() {
     }
 
     if(led_timer>= 3){
-        digitalWrite(LED,LOW);
+        digitalWrite(LED,OFF);
         lamp(OFF);
         led_timer = 0;
     }
