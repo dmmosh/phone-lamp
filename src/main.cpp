@@ -90,7 +90,6 @@ class MyCallbacks : public BLEServerCallbacks {
 
   void onDisconnect(BLEServer* pServer){
     connected = false;
-    rssi = -100;
     Serial.println("Disconnect");
     BLE2902* desc = (BLE2902*)input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
@@ -211,6 +210,16 @@ inline void connect_wait(){
     }
 }
 
+bool str_equals(const char* str1, const char* str2){
+    uint8_t j = 0;
+    while(str1[j] != '\0' || str2[j] != '\0'){
+        if (str1[j] != str2[j]){
+            return false;
+        }
+        j++;
+    }
+    return true;
+}
 
 
 
@@ -273,7 +282,6 @@ void loop() {
     lamp(OFF);
     pAdvertising->start();
     connect_wait();
-    lamp(ON);
   }  
   
 
@@ -291,10 +299,9 @@ void loop() {
         BLEAdvertisedDevice device = scanResults.getDevice(i);
         
 
-        if(!strcmp(mac, device.getAddress().toString().c_str())){
+        if(str_equals(mac, device.getAddress().toString().c_str())){
             rssi = device.getRSSI();
             break;
-            
         }
 
   }
