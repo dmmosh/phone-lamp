@@ -31,7 +31,6 @@
 #define LED 2
 #define OFF 0
 #define ON 1
-#define FLASH 2
 
 #define RED 2
 #define GREEN 4
@@ -46,13 +45,6 @@ BLEAdvertising *pAdvertising;
 BLEServer *pServer;
 BLEScan* pBLEScan;
 
-
-
-// NOTE: led and lamp states ONLY CALLED in setup and loop
-// Variable to track connection status
-uint8_t curr_led_state = OFF; //led_
-TaskHandle_t flash_led_task = NULL;
-
 // variable to track led lamp itself
 uint8_t curr_lamp_state = OFF; //led_
 TaskHandle_t lamp_rgb_task = NULL;
@@ -65,10 +57,9 @@ bool connected = false;
 
 
 
-void flash_led(void* args);
-void led(const uint8_t new_state);
 void rgb_lamp(void* args);
 void lamp(const uint8_t new_state);
+inline void led(const uint8_t new_state);
 inline void connect_wait();
 bool str_equals(const char* str1, const char* str2);
 
@@ -106,42 +97,6 @@ class MyCallbacks : public BLEServerCallbacks {
   }
 };
 
-
-
-void flash_led(void* args){
-    uint8_t flash_timer = 0;
-    while(curr_led_state == FLASH){
-        digitalWrite(LED,HIGH);
-        vTaskDelay(500/portTICK_PERIOD_MS);
-        digitalWrite(LED,LOW);
-        vTaskDelay(500/portTICK_PERIOD_MS);
-        if(flash_timer >= 10){
-            led(OFF);
-        }
-        flash_timer++;
-    }
-    vTaskDelete(NULL);
-}
-
-void led(const uint8_t new_state){  
-    // state: new state
-    // 
-    if(new_state == FLASH && curr_led_state != FLASH){ 
-        xTaskCreate(flash_led, "led flash", configMINIMAL_STACK_SIZE, NULL, 1, &flash_led_task);
-    } else if (new_state == ON && curr_led_state != ON){
-        if(curr_led_state == FLASH){
-            vTaskDelete(flash_led_task);
-        }
-        digitalWrite(LED,HIGH);
-        
-    } else if (new_state == OFF && curr_led_state != OFF){
-        if(curr_led_state == FLASH){
-            vTaskDelete(flash_led_task);
-        }
-        digitalWrite(LED,LOW);
-    }
-    curr_led_state = new_state;
-}
 
 
 void rgb_lamp(void* args){
@@ -207,9 +162,13 @@ void lamp(const uint8_t new_state){
 inline void connect_wait(){
     uint16_t ms_5  = 0;
     uint16_t seconds = 0;
+    bool led_state = OFF;
     while(!connected){
-
+        
         if(ms_5 >= 200){
+            led_state = (led_state == ON) ? OFF : ON;
+            digitalWrite(LED,led_state);
+
             Serial.printf("Waiting for device to pair... %is\n", seconds);
             seconds++;
             ms_5 = 0;
@@ -293,7 +252,6 @@ void loop() {
 
   if(!connected){
     lamp(OFF);
-    led(FLASH);
     pAdvertising->start();
     connect_wait();
   }  
@@ -322,16 +280,15 @@ void loop() {
     Serial.println(rssi);
     if(rssi > -75){
         lamp(ON);
-        led(ON);
         led_timer = 0;
     } else{
         led_timer++;
     }
 
     if(led_timer>= 3){
-        led_timer = 0;
-        led(OFF);
+        digitalWrite(LED,LOW);
         lamp(OFF);
+        led_timer = 0;
     }
 
 
