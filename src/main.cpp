@@ -99,11 +99,16 @@ class MyCallbacks : public BLEServerCallbacks {
 
 
 void flash_led(void* args){
+    uint8_t flash_timer = 0;
     while(curr_led_state == FLASH){
         digitalWrite(LED,HIGH);
         vTaskDelay(500/portTICK_PERIOD_MS);
         digitalWrite(LED,LOW);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        if(flash_timer >= 10){
+            led(OFF);
+        }
+        flash_timer++;
     }
     vTaskDelete(NULL);
 }
@@ -174,9 +179,9 @@ void lamp(const uint8_t new_state){
     
 
     if(new_state == ON && curr_lamp_state != ON){
-        xTaskCreate(rgb_lamp, "rgb lamp", configMINIMAL_STACK_SIZE,NULL,1,&lamp_rgb_task);
+        xTaskCreate(rgb_lamp, "rgb lamp", 2048,NULL,1,&lamp_rgb_task);
     } else if (new_state == OFF && curr_lamp_state != OFF) {
-        
+
         vTaskDelete(lamp_rgb_task);
         analogWrite(RED,LOW);
         analogWrite(GREEN,LOW);
@@ -274,6 +279,7 @@ void loop() {
 
   if(!connected){
     lamp(OFF);
+    led(FLASH);
     pAdvertising->start();
     connect_wait();
   }  
