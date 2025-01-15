@@ -280,7 +280,7 @@ void loop() {
 
   }
     Serial.println(rssi);
-    if(rssi > -75){
+    if(rssi > -90){
         digitalWrite(LED,ON);
         lamp(ON);
         led_timer = 0;
